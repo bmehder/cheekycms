@@ -16,6 +16,8 @@ description = "A small, file-backed headless CMS written in Gleam"
 gleam_stdlib = ">= 1.0.0 and < 2.0.0"
 yamleam = ">= 1.0.0 and < 2.0.0"
 mork = ">= 1.12.3 and < 2.0.0"
+simplifile = ">= 2.7.0 and < 3.0.0"
+filepath = ">= 1.1.2 and < 2.0.0"
 
 [dev_dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"
