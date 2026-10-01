@@ -52,6 +52,11 @@ GET /api/:project/collections/:collection/:slug
 GET /api/:project/singletons/:name
 ```
 
+`GET /api` is a discovery document generated from the loaded content. It lists
+each project, collection, singleton, entry endpoint, and the types and presence
+counts observed for frontmatter fields. The other routes return rendered
+content.
+
 ## Development
 
 ```sh

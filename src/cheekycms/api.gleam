@@ -1,5 +1,6 @@
 import cheekycms/api_json
 import cheekycms/catalogue
+import cheekycms/documentation
 import cheekycms/query
 import cheekycms/route
 import gleam/json
@@ -28,7 +29,16 @@ pub fn handle(catalogue: catalogue.Catalogue, path: String) -> Response {
         "invalid_identifier",
         "The request path contains an invalid content identifier.",
       )
-    Ok(content_query) -> execute(catalogue, content_query)
+    Ok(route.Index) ->
+      Response(
+        status: 200,
+        content_type: json_content_type,
+        body: catalogue
+          |> documentation.build
+          |> api_json.documentation
+          |> api_json.to_string,
+      )
+    Ok(route.Content(content_query)) -> execute(catalogue, content_query)
   }
 }
 

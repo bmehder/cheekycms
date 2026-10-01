@@ -26,56 +26,75 @@ fn content_name(value: String) -> identifier.ContentName {
 
 pub fn parses_the_api_root_test() {
   route.parse("/api")
-  |> should.equal(Ok(query.AllContent))
+  |> should.equal(Ok(route.Index))
   route.parse("/api/")
-  |> should.equal(Ok(query.AllContent))
+  |> should.equal(Ok(route.Index))
 }
 
 pub fn parses_a_project_route_test() {
   route.parse("/api/personal-site")
-  |> should.equal(Ok(query.Project(project_id("personal-site"))))
+  |> should.equal(Ok(route.Content(query.Project(project_id("personal-site")))))
 }
 
 pub fn parses_a_collection_route_test() {
   route.parse("/api/personal-site/collections/posts")
   |> should.equal(
-    Ok(query.Collection(project_id("personal-site"), collection_name("posts"))),
+    Ok(
+      route.Content(query.Collection(
+        project_id("personal-site"),
+        collection_name("posts"),
+      )),
+    ),
   )
 }
 
 pub fn parses_an_entry_route_test() {
   route.parse("/api/personal-site/collections/posts/hello-world")
   |> should.equal(
-    Ok(query.Entry(
-      project_id("personal-site"),
-      collection_name("posts"),
-      slug("hello-world"),
-    )),
+    Ok(
+      route.Content(query.Entry(
+        project_id("personal-site"),
+        collection_name("posts"),
+        slug("hello-world"),
+      )),
+    ),
   )
 }
 
 pub fn parses_a_singleton_route_test() {
   route.parse("/api/personal-site/singletons/homepage")
   |> should.equal(
-    Ok(query.Singleton(project_id("personal-site"), content_name("homepage"))),
+    Ok(
+      route.Content(query.Singleton(
+        project_id("personal-site"),
+        content_name("homepage"),
+      )),
+    ),
   )
 }
 
 pub fn accepts_one_trailing_slash_on_content_routes_test() {
   route.parse("/api/personal-site/singletons/homepage/")
   |> should.equal(
-    Ok(query.Singleton(project_id("personal-site"), content_name("homepage"))),
+    Ok(
+      route.Content(query.Singleton(
+        project_id("personal-site"),
+        content_name("homepage"),
+      )),
+    ),
   )
 }
 
 pub fn percent_decodes_dynamic_segments_test() {
   route.parse("/api/my%20site/collections/news/hello%20world")
   |> should.equal(
-    Ok(query.Entry(
-      project_id("my site"),
-      collection_name("news"),
-      slug("hello world"),
-    )),
+    Ok(
+      route.Content(query.Entry(
+        project_id("my site"),
+        collection_name("news"),
+        slug("hello world"),
+      )),
+    ),
   )
 }
 

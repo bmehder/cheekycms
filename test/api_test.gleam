@@ -10,6 +10,37 @@ fn fixture_catalogue() -> catalogue.Catalogue {
   value
 }
 
+pub fn serves_a_catalogue_derived_api_index_test() {
+  let api.Response(status:, content_type:, body:) =
+    api.handle(fixture_catalogue(), "/api")
+
+  status
+  |> should.equal(200)
+  content_type
+  |> should.equal(api.json_content_type)
+  body
+  |> json.parse(using: {
+    use name <- decode.field("name", decode.string)
+    use projects <- decode.field(
+      "projects",
+      decode.list({
+        use id <- decode.field("id", decode.string)
+        use endpoint <- decode.field("endpoint", decode.string)
+        decode.success(#(id, endpoint))
+      }),
+    )
+    decode.success(#(name, projects))
+  })
+  |> should.equal(
+    Ok(
+      #("CheekyCMS", [
+        #("course-site", "/api/course-site"),
+        #("personal-site", "/api/personal-site"),
+      ]),
+    ),
+  )
+}
+
 pub fn handles_a_single_content_request_test() {
   let api.Response(status:, content_type:, body:) =
     api.handle(

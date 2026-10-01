@@ -4,6 +4,11 @@ import gleam/result
 import gleam/string
 import gleam/uri
 
+pub type Route {
+  Index
+  Content(query.Query)
+}
+
 /// A request path which cannot be converted into a content query.
 pub type RouteError {
   RouteNotFound
@@ -15,30 +20,30 @@ pub type RouteError {
 ///
 /// A single trailing slash is accepted. Query strings and full URLs are not;
 /// callers should pass only the request path supplied by their HTTP server.
-pub fn parse(path: String) -> Result(query.Query, RouteError) {
+pub fn parse(path: String) -> Result(Route, RouteError) {
   let path = drop_trailing_slash(path)
 
   case string.split(path, on: "/") {
-    ["", "api"] -> Ok(query.AllContent)
+    ["", "api"] -> Ok(Index)
     ["", "api", project] -> {
       use project <- result.try(parse_project(project))
-      Ok(query.Project(project))
+      Ok(Content(query.Project(project)))
     }
     ["", "api", project, "collections", collection] -> {
       use project <- result.try(parse_project(project))
       use collection <- result.try(parse_collection(collection))
-      Ok(query.Collection(project, collection))
+      Ok(Content(query.Collection(project, collection)))
     }
     ["", "api", project, "collections", collection, slug] -> {
       use project <- result.try(parse_project(project))
       use collection <- result.try(parse_collection(collection))
       use slug <- result.try(parse_slug(slug))
-      Ok(query.Entry(project, collection, slug))
+      Ok(Content(query.Entry(project, collection, slug)))
     }
     ["", "api", project, "singletons", name] -> {
       use project <- result.try(parse_project(project))
       use name <- result.try(parse_content_name(name))
-      Ok(query.Singleton(project, name))
+      Ok(Content(query.Singleton(project, name)))
     }
     _ -> Error(RouteNotFound)
   }

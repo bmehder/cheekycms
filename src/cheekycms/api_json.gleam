@@ -1,10 +1,78 @@
 import cheekycms/catalogue
 import cheekycms/content
+import cheekycms/documentation
 import cheekycms/identifier
 import cheekycms/metadata as content_metadata
 import cheekycms/query
 import gleam/json.{type Json}
 import gleam/list
+
+pub fn documentation(index: documentation.Index) -> Json {
+  let documentation.Index(projects:) = index
+  json.object([
+    #("name", json.string("CheekyCMS")),
+    #("projects", json.array(projects, of: documentation_project)),
+  ])
+}
+
+fn documentation_project(project: documentation.Project) -> Json {
+  let documentation.Project(id:, endpoint:, collections:, singletons:) = project
+  json.object([
+    #("id", json.string(identifier.project_id_to_string(id))),
+    #("endpoint", json.string(endpoint)),
+    #("collections", json.array(collections, of: documentation_collection)),
+    #("singletons", json.array(singletons, of: documentation_singleton)),
+  ])
+}
+
+fn documentation_collection(collection: documentation.Collection) -> Json {
+  let documentation.Collection(name:, endpoint:, entries:, metadata:) =
+    collection
+  json.object([
+    #("name", json.string(identifier.collection_name_to_string(name))),
+    #("endpoint", json.string(endpoint)),
+    #("entries", json.array(entries, of: documentation_entry)),
+    #("metadata", json.dict(metadata, fn(key) { key }, documentation_field)),
+  ])
+}
+
+fn documentation_entry(entry: documentation.Entry) -> Json {
+  let documentation.Entry(slug:, endpoint:) = entry
+  json.object([
+    #("slug", json.string(identifier.slug_to_string(slug))),
+    #("endpoint", json.string(endpoint)),
+  ])
+}
+
+fn documentation_singleton(singleton: documentation.Singleton) -> Json {
+  let documentation.Singleton(name:, endpoint:, metadata:) = singleton
+  json.object([
+    #("name", json.string(identifier.content_name_to_string(name))),
+    #("endpoint", json.string(endpoint)),
+    #("metadata", json.dict(metadata, fn(key) { key }, documentation_field)),
+  ])
+}
+
+fn documentation_field(field: documentation.Field) -> Json {
+  let documentation.Field(types:, present_in:) = field
+  json.object([
+    #("types", json.array(types, of: documentation_type)),
+    #("present_in", json.int(present_in)),
+  ])
+}
+
+fn documentation_type(value: documentation.ValueType) -> Json {
+  let name = case value {
+    documentation.StringType -> "string"
+    documentation.IntType -> "integer"
+    documentation.FloatType -> "float"
+    documentation.BoolType -> "boolean"
+    documentation.ListType -> "list"
+    documentation.ObjectType -> "object"
+    documentation.NullType -> "null"
+  }
+  json.string(name)
+}
 
 /// Encode rendered content in the shape exposed by the API.
 pub fn rendered_content(value: content.RenderedContent) -> Json {
