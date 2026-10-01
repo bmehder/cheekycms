@@ -2,7 +2,9 @@ import cheekycms/catalogue
 import cheekycms/content
 import cheekycms/identifier
 import cheekycms/metadata as content_metadata
+import cheekycms/query
 import gleam/json.{type Json}
+import gleam/list
 
 /// Encode rendered content in the shape exposed by the API.
 pub fn rendered_content(value: content.RenderedContent) -> Json {
@@ -36,13 +38,34 @@ pub fn rendered_content(value: content.RenderedContent) -> Json {
 
 /// Encode every catalogue item in deterministic discovery order.
 pub fn catalogue(value: catalogue.Catalogue) -> Json {
-  let items =
-    value
-    |> catalogue.all
-    |> json.array(of: fn(item) {
+  value
+  |> catalogue.all
+  |> list_items
+}
+
+/// Encode the result of a catalogue query.
+pub fn selection(value: query.Selection) -> Json {
+  case value {
+    query.One(content) -> rendered_content(content)
+    query.Many(contents) -> contents_json(contents)
+  }
+}
+
+fn list_items(items: List(catalogue.Item)) -> Json {
+  let contents =
+    items
+    |> list.map(fn(item) {
       let catalogue.Item(content:, ..) = item
-      rendered_content(content)
+      content
     })
+
+  contents_json(contents)
+}
+
+fn contents_json(contents: List(content.RenderedContent)) -> Json {
+  let items =
+    contents
+    |> json.array(of: rendered_content)
 
   json.object([#("items", items)])
 }
