@@ -1,0 +1,1 @@
+This file is deliberately ignored by content discovery.
