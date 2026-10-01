@@ -12,3 +12,10 @@ pub fn empty_identifiers_are_rejected_test() {
   identifier.project_id(" \n\t")
   |> should.equal(Error(identifier.EmptyIdentifier))
 }
+
+pub fn path_segments_are_rejected_test() {
+  identifier.slug("nested/entry")
+  |> should.equal(Error(identifier.PathSeparatorNotAllowed))
+  identifier.project_id("..")
+  |> should.equal(Error(identifier.ReservedPathSegment))
+}

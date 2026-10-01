@@ -3,6 +3,8 @@ import gleam/string
 
 pub type IdentifierError {
   EmptyIdentifier
+  PathSeparatorNotAllowed
+  ReservedPathSegment
 }
 
 pub opaque type ProjectId {
@@ -70,6 +72,11 @@ pub fn content_name_to_string(name: ContentName) -> String {
 fn result_try_non_empty(value: String) -> Result(String, IdentifierError) {
   case string.trim(value) {
     "" -> Error(EmptyIdentifier)
-    trimmed -> Ok(trimmed)
+    "." | ".." -> Error(ReservedPathSegment)
+    trimmed ->
+      case string.contains(trimmed, "/") || string.contains(trimmed, "\\") {
+        True -> Error(PathSeparatorNotAllowed)
+        False -> Ok(trimmed)
+      }
   }
 }
