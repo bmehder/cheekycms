@@ -52,7 +52,7 @@ fn execute(
   }
 }
 
-fn error_response(status: Int, code: String, message: String) -> Response {
+pub fn error_response(status: Int, code: String, message: String) -> Response {
   let body =
     json.object([
       #(
