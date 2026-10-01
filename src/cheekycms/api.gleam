@@ -1,9 +1,11 @@
 import cheekycms/api_json
 import cheekycms/catalogue
+import cheekycms/catalogue_store
 import cheekycms/documentation
 import cheekycms/query
 import cheekycms/route
 import gleam/json
+import gleam/option
 
 pub const json_content_type = "application/json; charset=utf-8"
 
@@ -40,6 +42,39 @@ pub fn handle(catalogue: catalogue.Catalogue, path: String) -> Response {
       )
     Ok(route.Content(content_query)) -> execute(catalogue, content_query)
   }
+}
+
+/// Describe the currently served catalogue and the latest reload attempt.
+pub fn health(status: catalogue_store.Status) -> Response {
+  let catalogue_store.Status(
+    catalogue_size:,
+    successful_reloads:,
+    last_successful_reload:,
+    last_reload_attempt:,
+    last_error:,
+  ) = status
+  let state = case last_error {
+    option.None -> "ok"
+    option.Some(_) -> "degraded"
+  }
+  let error = case last_error {
+    option.None -> json.null()
+    option.Some(message) -> json.string(message)
+  }
+
+  Response(
+    status: 200,
+    content_type: json_content_type,
+    body: json.object([
+      #("status", json.string(state)),
+      #("catalogue_size", json.int(catalogue_size)),
+      #("successful_reloads", json.int(successful_reloads)),
+      #("last_successful_reload", json.string(last_successful_reload)),
+      #("last_reload_attempt", json.string(last_reload_attempt)),
+      #("last_error", error),
+    ])
+      |> json.to_string,
+  )
 }
 
 fn execute(

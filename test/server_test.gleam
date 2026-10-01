@@ -1,4 +1,5 @@
 import cheekycms/catalogue
+import cheekycms/catalogue_store
 import cheekycms/discovery
 import cheekycms/server
 import gleam/dynamic/decode
@@ -6,6 +7,7 @@ import gleam/http
 import gleam/http/request
 import gleam/http/response
 import gleam/json
+import gleam/option
 import gleeunit/should
 
 fn fixture_catalogue() -> catalogue.Catalogue {
@@ -48,4 +50,30 @@ pub fn rejects_non_get_requests_test() {
     decode.success(code)
   })
   |> should.equal(Ok("method_not_allowed"))
+}
+
+pub fn serves_reload_health_as_json_test() {
+  let request = request.new() |> request.set_path("/health")
+  let status =
+    catalogue_store.Status(
+      catalogue_size: 3,
+      successful_reloads: 2,
+      last_successful_reload: "2026-10-02T12:00:00Z",
+      last_reload_attempt: "2026-10-02T12:01:00Z",
+      last_error: option.Some("bad frontmatter"),
+    )
+  let result =
+    server.response_for_snapshot(request, fixture_catalogue(), status)
+
+  result.status
+  |> should.equal(200)
+  result.body
+  |> json.parse(using: {
+    use state <- decode.field("status", decode.string)
+    use size <- decode.field("catalogue_size", decode.int)
+    use reloads <- decode.field("successful_reloads", decode.int)
+    use error <- decode.field("last_error", decode.string)
+    decode.success(#(state, size, reloads, error))
+  })
+  |> should.equal(Ok(#("degraded", 3, 2, "bad frontmatter")))
 }

@@ -6,8 +6,10 @@ CheekyCMS treats Markdown files with frontmatter as source documents. Its core
 pipeline will turn each source document into arbitrary metadata plus rendered
 HTML suitable for a JSON API.
 
-CheekyCMS runs on the BEAM using Mist. Content is discovered and rendered once
-at startup, then served from an immutable in-memory catalogue.
+CheekyCMS runs on the BEAM using Mist. Content is discovered and rendered at
+startup, then served from an in-memory catalogue. Markdown changes are loaded
+automatically. An invalid edit is reported without replacing the last working
+catalogue.
 
 ## Content layout
 
@@ -50,12 +52,18 @@ GET /api/:project
 GET /api/:project/collections/:collection
 GET /api/:project/collections/:collection/:slug
 GET /api/:project/singletons/:name
+GET /health
 ```
 
 `GET /api` is a discovery document generated from the loaded content. It lists
 each project, collection, singleton, entry endpoint, and the types and presence
 counts observed for frontmatter fields. The other routes return rendered
 content.
+
+`GET /health` reports the catalogue size, reload count, timestamps for the last
+attempt and successful reload, and the most recent reload error. A `degraded`
+status means the last working content is still being served after an invalid
+edit.
 
 ## Development
 
