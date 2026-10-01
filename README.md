@@ -70,3 +70,8 @@ edit.
 ```sh
 gleam test
 ```
+
+## Deployment
+
+CheekyCMS includes a production container, continuous integration, and an
+always-warm Fly.io configuration. See [DEPLOYMENT.md](DEPLOYMENT.md).
