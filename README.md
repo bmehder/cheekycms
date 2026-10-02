@@ -38,6 +38,10 @@ gleam run
 
 Only `GET` requests are supported.
 
+Browser requests are allowed from any origin by default. Set
+`CHEEKYCMS_ALLOWED_ORIGINS` to a comma-separated list of origins to restrict
+access. CORS preflight `OPTIONS` requests are handled automatically.
+
 The included example is available at:
 
 ```text

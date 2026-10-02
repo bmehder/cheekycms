@@ -15,7 +15,8 @@ COPY --chown=cheekycms:cheekycms content ./content
 
 ENV CHEEKYCMS_HOST=0.0.0.0 \
     CHEEKYCMS_PORT=4000 \
-    CHEEKYCMS_CONTENT_ROOT=/app/content
+    CHEEKYCMS_CONTENT_ROOT=/app/content \
+    CHEEKYCMS_ALLOWED_ORIGINS=*
 
 EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \

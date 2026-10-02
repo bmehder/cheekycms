@@ -7,6 +7,7 @@ import gleam/bytes_tree
 import gleam/http
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
+import gleam/list
 import gleam/result
 import mist
 import polly
@@ -38,7 +39,7 @@ pub fn start(config: server_config.Config) -> Result(Nil, StartError) {
   )
 
   fn(request: Request(mist.Connection)) -> Response(mist.ResponseData) {
-    handle_live(request, store)
+    handle_live(request, store, config.allowed_origins)
   }
   |> mist.new
   |> mist.bind(config.host)
@@ -51,11 +52,12 @@ pub fn start(config: server_config.Config) -> Result(Nil, StartError) {
 fn handle_live(
   request: Request(mist.Connection),
   store: catalogue_store.Store,
+  allowed_origins: List(String),
 ) -> Response(mist.ResponseData) {
   let catalogue_store.Snapshot(catalogue:, status:) =
     catalogue_store.snapshot(store)
   request
-  |> response_for_snapshot(catalogue, status)
+  |> response_for_snapshot_with_origins(catalogue, status, allowed_origins)
   |> response.map(fn(body) { mist.Bytes(bytes_tree.from_string(body)) })
 }
 
@@ -74,7 +76,16 @@ pub fn response_for(
   request: Request(body),
   content_catalogue: catalogue.Catalogue,
 ) -> Response(String) {
+  response_for_with_origins(request, content_catalogue, ["*"])
+}
+
+pub fn response_for_with_origins(
+  request: Request(body),
+  content_catalogue: catalogue.Catalogue,
+  allowed_origins: List(String),
+) -> Response(String) {
   response_for_api(request, content_catalogue)
+  |> add_cors(request, allowed_origins)
 }
 
 pub fn response_for_snapshot(
@@ -82,10 +93,20 @@ pub fn response_for_snapshot(
   content_catalogue: catalogue.Catalogue,
   status: catalogue_store.Status,
 ) -> Response(String) {
+  response_for_snapshot_with_origins(request, content_catalogue, status, ["*"])
+}
+
+fn response_for_snapshot_with_origins(
+  request: Request(body),
+  content_catalogue: catalogue.Catalogue,
+  status: catalogue_store.Status,
+  allowed_origins: List(String),
+) -> Response(String) {
   case request.method, request.path {
     http.Get, "/health" -> api.health(status) |> to_http_response
     _, _ -> response_for_api(request, content_catalogue)
   }
+  |> add_cors(request, allowed_origins)
 }
 
 fn response_for_api(
@@ -94,6 +115,8 @@ fn response_for_api(
 ) -> Response(String) {
   let api_response = case request.method {
     http.Get -> api.handle(content_catalogue, request.path)
+    http.Options ->
+      api.Response(status: 204, content_type: api.json_content_type, body: "")
     _ ->
       api.error_response(
         405,
@@ -112,7 +135,42 @@ fn to_http_response(api_response: api.Response) -> Response(String) {
     |> response.set_body(body)
 
   case status == 405 {
-    True -> response.set_header(response, "allow", "GET")
+    True -> response.set_header(response, "allow", "GET, OPTIONS")
     False -> response
+  }
+}
+
+fn add_cors(
+  api_response: Response(String),
+  request: Request(body),
+  allowed_origins: List(String),
+) -> Response(String) {
+  let allowed_origin = case list.contains(allowed_origins, "*") {
+    True -> Ok("*")
+    False ->
+      case request.get_header(request, "origin") {
+        Error(Nil) -> Error(Nil)
+        Ok(origin) ->
+          case list.contains(allowed_origins, origin) {
+            True -> Ok(origin)
+            False -> Error(Nil)
+          }
+      }
+  }
+
+  case allowed_origin {
+    Error(Nil) -> api_response
+    Ok(origin) -> {
+      let with_cors =
+        api_response
+        |> response.set_header("access-control-allow-origin", origin)
+        |> response.set_header("access-control-allow-methods", "GET, OPTIONS")
+        |> response.set_header("access-control-allow-headers", "content-type")
+        |> response.set_header("access-control-max-age", "86400")
+      case origin == "*" {
+        True -> with_cors
+        False -> response.set_header(with_cors, "vary", "Origin")
+      }
+    }
   }
 }

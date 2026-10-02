@@ -43,13 +43,64 @@ pub fn rejects_non_get_requests_test() {
   result.status
   |> should.equal(405)
   response.get_header(result, "allow")
-  |> should.equal(Ok("GET"))
+  |> should.equal(Ok("GET, OPTIONS"))
   result.body
   |> json.parse(using: {
     use code <- decode.subfield(["error", "code"], decode.string)
     decode.success(code)
   })
   |> should.equal(Ok("method_not_allowed"))
+}
+
+pub fn allows_public_browser_requests_and_preflights_test() {
+  let get_request =
+    request.new()
+    |> request.set_header("origin", "https://svelte.dev")
+    |> request.set_path("/api")
+  let options_request =
+    get_request
+    |> request.set_method(http.Options)
+  let get_response = server.response_for(get_request, fixture_catalogue())
+  let options_response =
+    server.response_for(options_request, fixture_catalogue())
+
+  response.get_header(get_response, "access-control-allow-origin")
+  |> should.equal(Ok("*"))
+  options_response.status
+  |> should.equal(204)
+  response.get_header(options_response, "access-control-allow-methods")
+  |> should.equal(Ok("GET, OPTIONS"))
+}
+
+pub fn restricts_browser_requests_to_configured_origins_test() {
+  let allowed_request =
+    request.new()
+    |> request.set_header("origin", "https://allowed.example")
+    |> request.set_path("/api")
+  let rejected_request =
+    request.new()
+    |> request.set_header("origin", "https://rejected.example")
+    |> request.set_path("/api")
+  let origins = ["https://allowed.example"]
+
+  let allowed =
+    server.response_for_with_origins(
+      allowed_request,
+      fixture_catalogue(),
+      origins,
+    )
+  response.get_header(allowed, "access-control-allow-origin")
+  |> should.equal(Ok("https://allowed.example"))
+  response.get_header(allowed, "vary")
+  |> should.equal(Ok("Origin"))
+
+  server.response_for_with_origins(
+    rejected_request,
+    fixture_catalogue(),
+    origins,
+  )
+  |> response.get_header("access-control-allow-origin")
+  |> should.equal(Error(Nil))
 }
 
 pub fn serves_reload_health_as_json_test() {

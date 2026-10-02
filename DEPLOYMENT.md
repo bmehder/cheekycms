@@ -63,6 +63,11 @@ The image accepts the same environment variables as local development:
 | `CHEEKYCMS_PORT` | `4000` |
 | `CHEEKYCMS_HOST` | `0.0.0.0` |
 | `CHEEKYCMS_CONTENT_ROOT` | `/app/content` |
+| `CHEEKYCMS_ALLOWED_ORIGINS` | `*` |
+
+Set `CHEEKYCMS_ALLOWED_ORIGINS` to a comma-separated list of browser origins
+to restrict cross-origin requests, for example
+`https://www.example.com,https://admin.example.com`.
 
 Do not mount a writable production content directory unless edits are backed
 up elsewhere. The in-container filesystem is ephemeral on most hosts.
