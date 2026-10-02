@@ -125,6 +125,29 @@ each project, collection, singleton, entry endpoint, and the types and presence
 counts observed for frontmatter fields. The other routes return rendered
 content.
 
+### Filtering collections
+
+Collection routes support metadata filters, sorting, and limits:
+
+```text
+GET /api/studio/collections/projects?featured=true
+GET /api/recipe-book/collections/recipes?tags=pantry
+GET /api/recipe-book/collections/recipes?vegetarian=true&sort=minutes
+GET /api/field-notes/collections/dispatches?sort=-published&limit=10
+```
+
+Any metadata field can be used as a filter. Scalar values use exact matching;
+list fields such as `tags` match when the requested value is present. Multiple
+filters are combined with AND. Use `sort=field` for ascending order or
+`sort=-field` for descending order, and use `limit` from 1 through 100.
+
+Unknown fields, unsortable fields, malformed controls, and query parameters on
+non-collection routes return a descriptive `400` response. The generated API
+index also describes these query controls.
+
+Try [featured projects](https://cheekycms.fly.dev/api/studio/collections/projects?featured=true)
+or [the quickest vegetarian recipe](https://cheekycms.fly.dev/api/recipe-book/collections/recipes?vegetarian=true&sort=minutes&limit=1).
+
 `GET /health` reports the catalogue size, reload count, timestamps for the last
 attempt and successful reload, and the most recent reload error. A `degraded`
 status means the last working content is still being served after an invalid

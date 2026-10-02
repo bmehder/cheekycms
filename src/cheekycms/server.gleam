@@ -254,7 +254,17 @@ fn response_for_api(
   content_catalogue: catalogue.Catalogue,
 ) -> Response(String) {
   let api_response = case request.method {
-    http.Get -> api.handle(content_catalogue, request.path)
+    http.Get ->
+      case request.get_query(request) {
+        Ok(parameters) ->
+          api.handle_with_query(content_catalogue, request.path, parameters)
+        Error(Nil) ->
+          api.error_response(
+            400,
+            "invalid_query_encoding",
+            "The query string contains invalid percent encoding.",
+          )
+      }
     http.Options ->
       api.Response(status: 204, content_type: api.json_content_type, body: "")
     _ ->

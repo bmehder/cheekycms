@@ -7,6 +7,7 @@ import gleam/http
 import gleam/http/request
 import gleam/http/response
 import gleam/json
+import gleam/list
 import gleam/option
 import gleeunit/should
 
@@ -31,6 +32,22 @@ pub fn adapts_get_requests_test() {
     decode.success(name)
   })
   |> should.equal(Ok("homepage"))
+}
+
+pub fn passes_decoded_query_parameters_to_the_api_test() {
+  let request =
+    request.new()
+    |> request.set_path("/api/personal-site/collections/posts")
+    |> request.set_query([#("featured", "true")])
+  let result = server.response_for(request, fixture_catalogue())
+
+  result.status |> should.equal(200)
+  result.body
+  |> json.parse(using: {
+    use items <- decode.field("items", decode.list(decode.dynamic))
+    decode.success(list.length(items))
+  })
+  |> should.equal(Ok(1))
 }
 
 pub fn rejects_non_get_requests_test() {

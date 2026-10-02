@@ -1,6 +1,7 @@
 import cheekycms/api_json
 import cheekycms/catalogue
 import cheekycms/catalogue_store
+import cheekycms/collection_query
 import cheekycms/documentation
 import cheekycms/query
 import cheekycms/route
@@ -16,6 +17,14 @@ pub type Response {
 
 /// Resolve an API path against a content catalogue and encode its response.
 pub fn handle(catalogue: catalogue.Catalogue, path: String) -> Response {
+  handle_with_query(catalogue, path, [])
+}
+
+pub fn handle_with_query(
+  catalogue: catalogue.Catalogue,
+  path: String,
+  parameters: List(#(String, String)),
+) -> Response {
   case route.parse(path) {
     Error(route.RouteNotFound) ->
       error_response(404, "route_not_found", "No API route matches this path.")
@@ -32,15 +41,20 @@ pub fn handle(catalogue: catalogue.Catalogue, path: String) -> Response {
         "The request path contains an invalid content identifier.",
       )
     Ok(route.Index) ->
-      Response(
-        status: 200,
-        content_type: json_content_type,
-        body: catalogue
-          |> documentation.build
-          |> api_json.documentation
-          |> api_json.to_string,
-      )
-    Ok(route.Content(content_query)) -> execute(catalogue, content_query)
+      case parameters {
+        [] ->
+          Response(
+            status: 200,
+            content_type: json_content_type,
+            body: catalogue
+              |> documentation.build
+              |> api_json.documentation
+              |> api_json.to_string,
+          )
+        _ -> unsupported_query()
+      }
+    Ok(route.Content(content_query)) ->
+      execute(catalogue, content_query, parameters)
   }
 }
 
@@ -80,14 +94,11 @@ pub fn health(status: catalogue_store.Status) -> Response {
 fn execute(
   catalogue: catalogue.Catalogue,
   content_query: query.Query,
+  parameters: List(#(String, String)),
 ) -> Response {
   case query.run(catalogue, content_query) {
     Ok(selection) ->
-      Response(
-        status: 200,
-        content_type: json_content_type,
-        body: selection |> api_json.selection |> api_json.to_string,
-      )
+      apply_collection_query(content_query, selection, parameters)
     Error(_) ->
       error_response(
         404,
@@ -95,6 +106,43 @@ fn execute(
         "No content matches this request.",
       )
   }
+}
+
+fn apply_collection_query(
+  content_query: query.Query,
+  selection: query.Selection,
+  parameters: List(#(String, String)),
+) -> Response {
+  case parameters, content_query, selection {
+    [], _, _ -> selection_response(selection)
+    _, query.Collection(_, _), query.Many(contents) ->
+      case collection_query.apply(contents, parameters) {
+        Ok(contents) -> selection_response(query.Many(contents))
+        Error(error) ->
+          error_response(
+            400,
+            collection_query.error_code(error),
+            collection_query.error_message(error),
+          )
+      }
+    _, _, _ -> unsupported_query()
+  }
+}
+
+fn selection_response(selection: query.Selection) -> Response {
+  Response(
+    status: 200,
+    content_type: json_content_type,
+    body: selection |> api_json.selection |> api_json.to_string,
+  )
+}
+
+fn unsupported_query() -> Response {
+  error_response(
+    400,
+    "unsupported_query",
+    "Query parameters are only supported on collection routes.",
+  )
 }
 
 pub fn error_response(status: Int, code: String, message: String) -> Response {

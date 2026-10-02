@@ -10,6 +10,11 @@ fn fixture_catalogue() -> catalogue.Catalogue {
   value
 }
 
+fn demo_catalogue() -> catalogue.Catalogue {
+  let assert Ok(value) = discovery.discover("content")
+  value
+}
+
 pub fn serves_a_catalogue_derived_api_index_test() {
   let api.Response(status:, content_type:, body:) =
     api.handle(fixture_catalogue(), "/api")
@@ -86,6 +91,53 @@ pub fn handles_a_collection_request_test() {
     decode.success(slugs)
   })
   |> should.equal(Ok(["hello-world"]))
+}
+
+pub fn filters_sorts_and_limits_collection_requests_test() {
+  let api.Response(status:, body:, ..) =
+    api.handle_with_query(
+      demo_catalogue(),
+      "/api/recipe-book/collections/recipes",
+      [#("vegetarian", "true"), #("sort", "-minutes"), #("limit", "1")],
+    )
+
+  status |> should.equal(200)
+  body
+  |> json.parse(using: {
+    use slugs <- decode.field(
+      "items",
+      decode.list({
+        use slug <- decode.field("slug", decode.string)
+        decode.success(slug)
+      }),
+    )
+    decode.success(slugs)
+  })
+  |> should.equal(Ok(["tomato-orzo"]))
+}
+
+pub fn rejects_query_parameters_on_non_collection_routes_test() {
+  let api.Response(status:, body:, ..) =
+    api.handle_with_query(
+      fixture_catalogue(),
+      "/api/personal-site/singletons/homepage",
+      [#("title", "Home")],
+    )
+
+  status |> should.equal(400)
+  error_code(body) |> should.equal(Ok("unsupported_query"))
+}
+
+pub fn reports_unknown_collection_query_fields_test() {
+  let api.Response(status:, body:, ..) =
+    api.handle_with_query(
+      demo_catalogue(),
+      "/api/recipe-book/collections/recipes",
+      [#("unknown", "value")],
+    )
+
+  status |> should.equal(400)
+  error_code(body) |> should.equal(Ok("unknown_query_field"))
 }
 
 pub fn returns_json_for_an_unknown_route_test() {

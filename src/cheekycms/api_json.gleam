@@ -11,7 +11,31 @@ pub fn documentation(index: documentation.Index) -> Json {
   let documentation.Index(projects:) = index
   json.object([
     #("name", json.string("CheekyCMS")),
+    #("collection_query", collection_query_documentation()),
     #("projects", json.array(projects, of: documentation_project)),
+  ])
+}
+
+fn collection_query_documentation() -> Json {
+  json.object([
+    #(
+      "filters",
+      json.string(
+        "Filter with metadata fields, for example ?featured=true or ?tags=pantry. Multiple filters use AND.",
+      ),
+    ),
+    #(
+      "sort",
+      json.string(
+        "Use ?sort=field for ascending or ?sort=-field for descending order.",
+      ),
+    ),
+    #(
+      "limit",
+      json.string(
+        "Use ?limit=1 through ?limit=100 after filtering and sorting.",
+      ),
+    ),
   ])
 }
 
