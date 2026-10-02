@@ -57,6 +57,24 @@ The frontmatter becomes the response's `metadata` object and the body becomes
 its rendered `html` string. CheekyCMS does not impose a shared schema across
 projects or collections.
 
+## Publishing content
+
+Add or edit Markdown under `content/`, add any referenced files under `assets/`,
+then commit and push to `main`:
+
+```sh
+git add content assets
+git commit -m "Update content"
+git push
+```
+
+GitHub Actions checks formatting, runs the full test suite, builds the
+container, and deploys the new content to Fly.io. A failed check prevents the
+production deployment, so the currently working version stays live. Follow the
+run on the repository's [Actions page](https://github.com/bmehder/cheekycms/actions),
+then verify the [live API](https://cheekycms.fly.dev/api). There is no separate
+`fly deploy` step for normal publishing.
+
 ## Assets and images
 
 CheekyCMS serves repository-managed files from `/assets/...`. Images, PDFs,
@@ -87,13 +105,11 @@ potentially active HTML, SVG, XML, and JavaScript files are forced to download.
 Byte-range requests are supported, allowing browsers to seek through larger
 PDF, audio, and video files without downloading them completely first.
 
-Assets are currently read-only and repository-backed: add them to `assets/`,
-commit them, and push to `main`. GitHub Actions verifies the project and deploys
-a new image to Fly.io automatically. CheekyCMS does not currently provide an
-upload API, authentication, or persistent runtime storage. GitHub enforces a
-100 MB maximum for an individual Git object, so large or frequently changing
-media libraries should use object storage rather than this repository-backed
-workflow.
+Assets are currently read-only and repository-backed. CheekyCMS does not
+provide an upload API, authentication, or persistent runtime storage. GitHub
+enforces a 100 MB maximum for an individual Git object, so large or frequently
+changing media libraries should use object storage rather than this
+repository-backed workflow.
 
 ## Live demo
 
@@ -231,4 +247,6 @@ the outer modules.
 ## Deployment
 
 CheekyCMS includes a production container, continuous integration, and an
-always-warm Fly.io configuration. See [DEPLOYMENT.md](DEPLOYMENT.md).
+always-warm Fly.io configuration. Pushes to `main` deploy automatically after
+all checks pass. See [DEPLOYMENT.md](DEPLOYMENT.md) for initial setup, manual
+deployment, storage, and release verification.

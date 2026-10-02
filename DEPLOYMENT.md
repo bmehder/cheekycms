@@ -1,8 +1,8 @@
 # Deployment
 
 CheekyCMS is packaged as an Erlang shipment in a small OCI container. Content
-and assets are copied into the image, so production changes are made by
-committing files and deploying a new image. During the container build,
+and assets are copied into the image. Pushing changes to `main` verifies the
+repository and automatically deploys a new image. During the container build,
 ImageMagick generates 480, 960, and 1600 pixel WebP variants for every supported
 `*-source` image.
 
@@ -28,7 +28,22 @@ fly launch --no-deploy
 ```
 
 Keep the existing `fly.toml` settings when prompted. Fly adds the globally
-unique app name. For an initial or manual deployment, run:
+unique app name. Add an app-scoped deploy token to the repository after creating
+the app. With the Fly and GitHub CLIs authenticated, this sends the token
+directly to GitHub without writing it to the repository:
+
+```sh
+fly tokens create deploy --app cheekycms --expiry 8760h \
+  --name "GitHub Actions deployment" \
+  | gh secret set FLY_API_TOKEN
+```
+
+Replace `cheekycms` with the app name in `fly.toml` when deploying a separate
+installation. The example token expires after one year and should be replaced
+before then. Alternatively, create an app-scoped token in Fly.io and add it as
+the `FLY_API_TOKEN` repository secret in GitHub's Actions settings.
+
+For an initial or manual deployment, run:
 
 ```sh
 fly deploy
@@ -36,7 +51,7 @@ fly status
 fly checks list
 ```
 
-After the initial setup, every push to `main` automatically deploys to Fly.io
+After this one-time setup, every push to `main` automatically deploys to Fly.io
 once formatting, tests, the Erlang shipment build, and the container build have
 all passed. Pull requests are verified but never deployed. The workflow uses an
 app-scoped `FLY_API_TOKEN` repository secret and serializes production deploys
