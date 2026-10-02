@@ -22,5 +22,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD wget --quiet --spider http://127.0.0.1:${CHEEKYCMS_PORT}/health || exit 1
 
 USER cheekycms
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 CMD ["run"]
