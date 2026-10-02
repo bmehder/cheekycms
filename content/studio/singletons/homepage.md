@@ -26,6 +26,7 @@ contact:
   email: hello@northstar.example
   location: London, UK
 ---
+
 # We make complicated things feel simple.
 
 Northstar partners with thoughtful teams to design and build products people enjoy using.

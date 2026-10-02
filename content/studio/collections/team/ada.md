@@ -9,6 +9,7 @@ skills:
 social:
   website: https://example.com/ada
 ---
+
 # Ada Okafor
 
 Ada turns uncertain product questions into clear, testable directions.

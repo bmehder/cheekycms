@@ -14,6 +14,7 @@ download:
   src: /assets/field-notes/downloads/coastal-walk-checklist.txt
   title: Coastal walk checklist
 ---
+
 # After the Rain
 
 The cloud lifted just after noon, revealing the ridge one careful section at a time.

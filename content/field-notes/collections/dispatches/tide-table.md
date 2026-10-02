@@ -8,6 +8,7 @@ tags:
   - navigation
 reading_minutes: 6
 ---
+
 # Reading the Tide Table
 
 On a tidal island, the day's most important appointment is made by the moon.
