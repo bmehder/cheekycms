@@ -1,12 +1,18 @@
 # CheekyCMS
 
-A small, file-backed headless CMS written in Gleam. Try the
-[live API](https://cheekycms.fly.dev/api) or check its
+A cheeky little Markdown content API written in Gleam. Visit the
+[project site](https://cheekycms.fly.dev), explore the
+[live API](https://cheekycms.fly.dev/api), or check its
 [health](https://cheekycms.fly.dev/health).
 
 CheekyCMS treats Markdown files with frontmatter as source documents. Its core
 pipeline will turn each source document into arbitrary metadata plus rendered
 HTML suitable for a JSON API.
+
+It is content delivery more than content management: there is no dashboard,
+visual editor, database, write API, or editorial workflow. Git handles editing,
+history, and publishing. CheekyCMS keeps the deliberately smaller job of turning
+a repository of Markdown and assets into a reusable, read-only API.
 
 CheekyCMS runs on the BEAM using Mist. Content is discovered and rendered at
 startup, then served from an in-memory catalogue. Markdown changes are loaded
@@ -56,6 +62,20 @@ Warm the chickpeas in olive oil, then fold through the greens.
 The frontmatter becomes the response's `metadata` object and the body becomes
 its rendered `html` string. CheekyCMS does not impose a shared schema across
 projects or collections.
+
+## Why CheekyCMS?
+
+CheekyCMS favors two simple ideas: Markdown is a pleasantly portable content
+format, and one installation can serve several independent projects. Keep every
+project separate, use one deployment as a small data monorepo, or land somewhere
+in between. It is not necessarily the right architecture for everyone. You can
+do you.
+
+Full CMS products provide editing interfaces, permissions, drafts, schemas, and
+editorial workflows. Static-site tools turn files directly into websites.
+CheekyCMS sits narrowly between them: it exposes Markdown files as a universal
+HTTP API for websites, applications, static builds, or anything else that can
+read JSON. It does less on purpose.
 
 ## Publishing content
 
@@ -161,6 +181,7 @@ GET /api/example/singletons/homepage
 The complete route structure is:
 
 ```text
+GET /
 GET /api
 GET /api/:project
 GET /api/:project/collections/:collection
@@ -170,7 +191,8 @@ GET /assets/:path
 GET /health
 ```
 
-`GET /api` is a discovery document generated from the loaded content. It lists
+`GET /` serves the project introduction. `GET /api` is a discovery document
+generated from the loaded content. It lists
 each project, collection, singleton, entry endpoint, and the types and presence
 counts observed for frontmatter fields. The other routes return rendered
 content.
@@ -250,3 +272,5 @@ CheekyCMS includes a production container, continuous integration, and an
 always-warm Fly.io configuration. Pushes to `main` deploy automatically after
 all checks pass. See [DEPLOYMENT.md](DEPLOYMENT.md) for initial setup, manual
 deployment, storage, and release verification.
+
+CheekyCMS is available under the [MIT License](LICENSE).

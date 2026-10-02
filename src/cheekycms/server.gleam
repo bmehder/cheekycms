@@ -3,6 +3,7 @@ import cheekycms/asset
 import cheekycms/catalogue
 import cheekycms/catalogue_store
 import cheekycms/discovery
+import cheekycms/landing
 import cheekycms/server_config
 import gleam/bytes_tree
 import gleam/http
@@ -253,9 +254,10 @@ fn response_for_api(
   request: Request(body),
   content_catalogue: catalogue.Catalogue,
 ) -> Response(String) {
-  let api_response = case request.method {
-    http.Get ->
-      case request.get_query(request) {
+  case request.method, request.path {
+    http.Get, "/" -> homepage_response()
+    http.Get, _ -> {
+      let api_response = case request.get_query(request) {
         Ok(parameters) ->
           api.handle_with_query(content_catalogue, request.path, parameters)
         Error(Nil) ->
@@ -265,16 +267,33 @@ fn response_for_api(
             "The query string contains invalid percent encoding.",
           )
       }
-    http.Options ->
+      to_http_response(api_response)
+    }
+    http.Options, _ ->
       api.Response(status: 204, content_type: api.json_content_type, body: "")
-    _ ->
+      |> to_http_response
+    _, _ ->
       api.error_response(
         405,
         "method_not_allowed",
         "Only GET requests are supported.",
       )
+      |> to_http_response
   }
-  to_http_response(api_response)
+}
+
+fn homepage_response() -> Response(String) {
+  response.new(200)
+  |> response.set_header("content-type", "text/html; charset=utf-8")
+  |> response.set_header("cache-control", "public, max-age=300")
+  |> response.set_header("x-content-type-options", "nosniff")
+  |> response.set_header("referrer-policy", "strict-origin-when-cross-origin")
+  |> response.set_header("x-frame-options", "DENY")
+  |> response.set_header(
+    "content-security-policy",
+    "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+  )
+  |> response.set_body(landing.html())
 }
 
 fn to_http_response(api_response: api.Response) -> Response(String) {

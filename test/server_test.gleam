@@ -9,11 +9,27 @@ import gleam/http/response
 import gleam/json
 import gleam/list
 import gleam/option
+import gleam/string
 import gleeunit/should
 
 fn fixture_catalogue() -> catalogue.Catalogue {
   let assert Ok(value) = discovery.discover("test/fixtures/content")
   value
+}
+
+pub fn serves_the_public_landing_page_test() {
+  let request = request.new() |> request.set_path("/")
+  let result = server.response_for(request, fixture_catalogue())
+
+  result.status |> should.equal(200)
+  response.get_header(result, "content-type")
+  |> should.equal(Ok("text/html; charset=utf-8"))
+  response.get_header(result, "content-security-policy")
+  |> should.be_ok
+  string.contains(result.body, "A cheeky little")
+  |> should.be_true
+  string.contains(result.body, "Not the greatest new thing")
+  |> should.be_true
 }
 
 pub fn adapts_get_requests_test() {

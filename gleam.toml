@@ -5,8 +5,8 @@ target = "erlang"
 # Fill out these fields if you intend to generate HTML documentation or publish
 # your project to the Hex package manager.
 #
-description = "A small, file-backed headless CMS written in Gleam"
-# licences = ["Apache-2.0"]
+description = "A cheeky little Markdown content API written in Gleam"
+licences = ["MIT"]
 repository = { type = "github", user = "bmehder", repo = "cheekycms" }
 links = [{ title = "Live API", href = "https://cheekycms.fly.dev/api" }]
 #
