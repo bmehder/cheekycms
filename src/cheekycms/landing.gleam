@@ -1,20 +1,25 @@
-/// Render the small public introduction served at the root URL.
-pub fn html() -> String {
+import gleam/string
+
+/// Wrap the CMS-authored homepage in its shared document shell.
+pub fn html(title: String, description: String, body_html: String) -> String {
+  let safe_title = escape(title)
+  let safe_description = escape(description)
+
   "
   <!doctype html>
   <html lang='en'>
     <head>
       <meta charset='utf-8'>
       <meta name='viewport' content='width=device-width, initial-scale=1'>
-      <meta name='description' content='A cheeky little Markdown content API, written in Gleam.'>
+      <meta name='description' content='" <> safe_description <> "'>
       <meta name='theme-color' content='#11100f'>
-      <meta property='og:title' content='CheekyCMS — Markdown in, JSON out'>
-      <meta property='og:description' content='A cheeky little Markdown content API, written in Gleam.'>
+      <meta property='og:title' content='" <> safe_title <> "'>
+      <meta property='og:description' content='" <> safe_description <> "'>
       <meta property='og:type' content='website'>
       <meta property='og:url' content='https://cheekycms.fly.dev/'>
       <meta name='twitter:card' content='summary'>
       <link rel='canonical' href='https://cheekycms.fly.dev/'>
-      <title>CheekyCMS — Markdown in, JSON out</title>
+      <title>" <> safe_title <> "</title>
       <style>
         :root { color-scheme: dark; --ink: #f6f0e5; --muted: #aaa398; --paper: #11100f; --panel: #1a1816; --line: #34302c; --hot: #ff6b4a; --lime: #c8f169; }
         * { box-sizing: border-box; }
@@ -67,73 +72,19 @@ pub fn html() -> String {
         <div class='navlinks'><a href='#about'>What it is</a><a href='/api'>Explore the API</a><a href='https://github.com/bmehder/cheekycms'>GitHub</a></div>
       </nav>
 
-      <main>
-        <header class='hero'>
-          <div class='wrap'>
-            <div class='eyebrow'>Markdown in · JSON out · Gleam throughout</div>
-            <h1>A cheeky little <em>content API.</em></h1>
-            <p class='lede'>Put Markdown and assets in a repository. CheekyCMS serves them as structured metadata and rendered HTML—with room for several projects if that’s how you like to organise things.</p>
-            <div class='actions'><a class='button primary' href='/api'>Explore the live API →</a><a class='button' href='https://github.com/bmehder/cheekycms'>Read the code</a></div>
-          </div>
-        </header>
-
-        <section>
-          <div class='wrap'>
-            <h2>Just files. Then an API.</h2>
-            <p class='section-intro'>YAML frontmatter becomes metadata. Markdown becomes HTML. The response is ordinary JSON that any frontend can use.</p>
-            <div class='demo'>
-              <div class='code'><span class='label'>content/studio/collections/projects/orbit.md</span><pre>---
-<span class='key'>title:</span> <span class='value'>Orbit</span>
-<span class='key'>featured:</span> true
-<span class='key'>tags:</span>
-  - transport
-  - research
----
-
-# A calmer way to travel
-
-Journey planning without the noise.</pre></div>
-              <div class='code'><span class='label'>GET /api/studio/collections/projects/orbit</span><pre>{
-  <span class='key'>&quot;metadata&quot;</span>: {
-    <span class='key'>&quot;title&quot;</span>: <span class='value'>&quot;Orbit&quot;</span>,
-    <span class='key'>&quot;featured&quot;</span>: true,
-    <span class='key'>&quot;tags&quot;</span>: [<span class='value'>&quot;transport&quot;</span>, <span class='value'>&quot;research&quot;</span>]
-  },
-  <span class='key'>&quot;html&quot;</span>: <span class='value'>&quot;&lt;h1&gt;A calmer way to travel&lt;/h1&gt;…&quot;</span>
-}</pre></div>
-            </div>
-          </div>
-        </section>
-
-        <section id='about'>
-          <div class='wrap'>
-            <h2>Small on purpose.</h2>
-            <p class='section-intro'>CheekyCMS is content delivery more than content management. Git is the editor, history, and publishing workflow. The service does the useful bit in between.</p>
-            <div class='cards'>
-              <article class='card'><strong>Markdown-first</strong><p>Write portable content with arbitrary nested YAML metadata and raw HTML when you need it.</p></article>
-              <article class='card'><strong>Many projects, one place</strong><p>Use one installation per project—or make a tiny data monorepo. Is that always wise? Maybe not. You can do you.</p></article>
-              <article class='card'><strong>Fast, boring delivery</strong><p>Content is rendered at startup and served from memory on the BEAM. Assets, responsive images, CORS, and range requests are included.</p></article>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <div class='wrap honest'>
-            <div>
-              <h2>What it is.</h2>
-              <ul class='list yes'><li>A read-only JSON API</li><li>Collections and singletons</li><li>Repository-backed files and media</li><li>Automatic deployment from GitHub</li><li>A small Gleam service you can actually read</li></ul>
-            </div>
-            <div class='aside'>
-              <big>Not a visual editor. Not a workflow platform. Not the greatest new thing in content management.</big>
-              <p>Full CMSs offer dashboards, permissions, drafts, and editorial workflows. CheekyCMS does not. It turns a straightforward folder of Markdown into a reusable API, and tries to do that job well.</p>
-              <div class='actions'><a class='button primary' href='/api'>Browse sample data</a><a class='button' href='https://github.com/bmehder/cheekycms#readme'>Documentation</a></div>
-            </div>
-          </div>
-        </section>
-      </main>
+      " <> body_html <> "
 
       <footer class='wrap'><span>CheekyCMS · Built with Gleam on the BEAM</span><span>MIT licensed · No dashboard lurking backstage</span></footer>
     </body>
   </html>
   "
+}
+
+fn escape(value: String) -> String {
+  value
+  |> string.replace("&", "&amp;")
+  |> string.replace("<", "&lt;")
+  |> string.replace(">", "&gt;")
+  |> string.replace("\"", "&quot;")
+  |> string.replace("'", "&#39;")
 }

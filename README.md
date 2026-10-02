@@ -136,6 +136,8 @@ repository-backed workflow.
 This repository includes several sample projects to demonstrate a multi-project
 content API:
 
+- [`cheekycms`](https://cheekycms.fly.dev/api/cheekycms) — this site's own
+  homepage and guides, dogfooding the content API
 - [`example`](https://cheekycms.fly.dev/api/example) — a minimal starting point
 - [`studio`](https://cheekycms.fly.dev/api/studio) — pages, portfolio projects,
   and team members
@@ -237,7 +239,12 @@ own data monorepo.
 
 ## Reading the code
 
-A useful path through the implementation is:
+The [`Inside CheekyCMS`](content/cheekycms/collections/guides/inside-cheekycms.md)
+tutorial follows one Markdown file all the way from disk to JSON over HTTP. Its
+live API response is available at
+[`/api/cheekycms/collections/guides/inside-cheekycms`](https://cheekycms.fly.dev/api/cheekycms/collections/guides/inside-cheekycms).
+
+For a shorter reference, a useful path through the implementation is:
 
 1. [`content.gleam`](src/cheekycms/content.gleam) and
    [`metadata.gleam`](src/cheekycms/metadata.gleam) define the core domain.

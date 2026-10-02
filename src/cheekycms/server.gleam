@@ -2,8 +2,11 @@ import cheekycms/api
 import cheekycms/asset
 import cheekycms/catalogue
 import cheekycms/catalogue_store
+import cheekycms/content
 import cheekycms/discovery
+import cheekycms/identifier
 import cheekycms/landing
+import cheekycms/metadata as content_metadata
 import cheekycms/server_config
 import gleam/bytes_tree
 import gleam/http
@@ -255,7 +258,7 @@ fn response_for_api(
   content_catalogue: catalogue.Catalogue,
 ) -> Response(String) {
   case request.method, request.path {
-    http.Get, "/" -> homepage_response()
+    http.Get, "/" -> homepage_response(content_catalogue)
     http.Get, _ -> {
       let api_response = case request.get_query(request) {
         Ok(parameters) ->
@@ -282,7 +285,36 @@ fn response_for_api(
   }
 }
 
-fn homepage_response() -> Response(String) {
+fn homepage_response(
+  content_catalogue: catalogue.Catalogue,
+) -> Response(String) {
+  let assert Ok(project) = identifier.project_id("cheekycms")
+  let assert Ok(name) = identifier.content_name("homepage")
+  let homepage =
+    catalogue.get(
+      content_catalogue,
+      content.Singleton(project: project, name: name),
+    )
+  let #(title, description, body) = case homepage {
+    Ok(catalogue.Item(
+      content: content.RenderedContent(metadata:, body:, ..),
+      ..,
+    )) -> #(
+      metadata_string(metadata, "title", "CheekyCMS — Markdown in, JSON out"),
+      metadata_string(
+        metadata,
+        "description",
+        "A cheeky little Markdown content API, written in Gleam.",
+      ),
+      content.html_to_string(body),
+    )
+    Error(Nil) -> #(
+      "CheekyCMS",
+      "A cheeky little Markdown content API, written in Gleam.",
+      "<main class='hero'><div class='wrap'><h1>CheekyCMS</h1><p class='lede'>Add content/cheekycms/singletons/homepage.md to author this page with CheekyCMS.</p></div></main>",
+    )
+  }
+
   response.new(200)
   |> response.set_header("content-type", "text/html; charset=utf-8")
   |> response.set_header("cache-control", "public, max-age=300")
@@ -293,7 +325,18 @@ fn homepage_response() -> Response(String) {
     "content-security-policy",
     "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
   )
-  |> response.set_body(landing.html())
+  |> response.set_body(landing.html(title, description, body))
+}
+
+fn metadata_string(
+  metadata: content_metadata.Metadata,
+  key: String,
+  fallback: String,
+) -> String {
+  case content_metadata.get(metadata, key) {
+    Ok(content_metadata.StringValue(value)) -> value
+    _ -> fallback
+  }
 }
 
 fn to_http_response(api_response: api.Response) -> Response(String) {

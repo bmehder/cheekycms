@@ -17,9 +17,14 @@ fn fixture_catalogue() -> catalogue.Catalogue {
   value
 }
 
+fn landing_fixture_catalogue() -> catalogue.Catalogue {
+  let assert Ok(value) = discovery.discover("test/fixtures/landing")
+  value
+}
+
 pub fn serves_the_public_landing_page_test() {
   let request = request.new() |> request.set_path("/")
-  let result = server.response_for(request, fixture_catalogue())
+  let result = server.response_for(request, landing_fixture_catalogue())
 
   result.status |> should.equal(200)
   response.get_header(result, "content-type")
@@ -29,6 +34,13 @@ pub fn serves_the_public_landing_page_test() {
   string.contains(result.body, "A cheeky little")
   |> should.be_true
   string.contains(result.body, "Not the greatest new thing")
+  |> should.be_true
+  string.contains(result.body, "<title>Test CheekyCMS homepage</title>")
+  |> should.be_true
+  string.contains(
+    result.body,
+    "content='Homepage copy loaded from the content catalogue.'",
+  )
   |> should.be_true
 }
 
