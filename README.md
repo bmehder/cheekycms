@@ -34,6 +34,29 @@ Only Markdown files are used for content. YAML frontmatter holds arbitrary
 metadata—including nested objects and lists—and the Markdown body is rendered
 to HTML. Raw HTML may be included directly in Markdown.
 
+For example:
+
+```markdown
+---
+title: Lemony Chickpeas with Greens
+minutes: 25
+vegetarian: true
+tags:
+  - one-pan
+  - pantry
+hero:
+  src: /assets/recipe-book/images/chickpeas-960.webp
+  alt: Chickpeas and greens in a shallow bowl
+---
+# Lemony Chickpeas with Greens
+
+Warm the chickpeas in olive oil, then fold through the greens.
+```
+
+The frontmatter becomes the response's `metadata` object and the body becomes
+its rendered `html` string. CheekyCMS does not impose a shared schema across
+projects or collections.
+
 ## Assets and images
 
 CheekyCMS serves repository-managed files from `/assets/...`. Images, PDFs,
@@ -61,6 +84,15 @@ Try the live [responsive image](https://cheekycms.fly.dev/assets/studio/images/o
 or [text download](https://cheekycms.fly.dev/assets/field-notes/downloads/coastal-walk-checklist.txt).
 Asset paths are traversal-safe, unknown types are served as binary data, and
 potentially active HTML, SVG, XML, and JavaScript files are forced to download.
+Byte-range requests are supported, allowing browsers to seek through larger
+PDF, audio, and video files without downloading them completely first.
+
+Assets are currently read-only and repository-backed: add them to `assets/`,
+commit them, and deploy a new image. CheekyCMS does not currently provide an
+upload API, authentication, or persistent runtime storage. GitHub enforces a
+100 MB maximum for an individual Git object, so large or frequently changing
+media libraries should use object storage rather than this repository-backed
+workflow.
 
 ## Live demo
 
@@ -96,7 +128,8 @@ CHEEKYCMS_ASSET_ROOT=path/to/assets \
 gleam run
 ```
 
-Only `GET` requests are supported.
+Public data operations are read-only. `GET` serves content and assets, while
+`OPTIONS` is supported for browser CORS preflights. Other methods return `405`.
 
 Browser requests are allowed from any origin by default. Set
 `CHEEKYCMS_ALLOWED_ORIGINS` to a comma-separated list of origins to restrict
@@ -162,6 +195,37 @@ gleam test
 The sample content under [`content`](content) is intentionally substantial
 enough to use for prototyping clients, testing queries, or adapting into your
 own data monorepo.
+
+## Reading the code
+
+A useful path through the implementation is:
+
+1. [`content.gleam`](src/cheekycms/content.gleam) and
+   [`metadata.gleam`](src/cheekycms/metadata.gleam) define the core domain.
+2. [`frontmatter.gleam`](src/cheekycms/frontmatter.gleam) and
+   [`renderer.gleam`](src/cheekycms/renderer.gleam) transform Markdown files.
+3. [`source_path.gleam`](src/cheekycms/source_path.gleam),
+   [`loader.gleam`](src/cheekycms/loader.gleam), and
+   [`discovery.gleam`](src/cheekycms/discovery.gleam) load the filesystem.
+4. [`catalogue.gleam`](src/cheekycms/catalogue.gleam) and
+   [`catalogue_store.gleam`](src/cheekycms/catalogue_store.gleam) hold content
+   in memory and safely reload it on the BEAM.
+5. [`route.gleam`](src/cheekycms/route.gleam),
+   [`query.gleam`](src/cheekycms/query.gleam), and
+   [`collection_query.gleam`](src/cheekycms/collection_query.gleam) select and
+   refine content.
+6. [`documentation.gleam`](src/cheekycms/documentation.gleam),
+   [`api_json.gleam`](src/cheekycms/api_json.gleam), and
+   [`api.gleam`](src/cheekycms/api.gleam) produce the self-documenting JSON API.
+7. [`asset.gleam`](src/cheekycms/asset.gleam) secures file delivery, while
+   [`assets_build.gleam`](src/cheekycms/assets_build.gleam) generates responsive
+   images using Alakazam and ImageMagick.
+8. [`server.gleam`](src/cheekycms/server.gleam) is the Mist HTTP adapter, and
+   [`cheekycms.gleam`](src/cheekycms.gleam) is the application entry point.
+
+Most transformations are pure and have a corresponding focused test under
+[`test`](test). The filesystem, watcher, process, and network effects stay near
+the outer modules.
 
 ## Deployment
 

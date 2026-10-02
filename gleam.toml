@@ -7,8 +7,8 @@ target = "erlang"
 #
 description = "A small, file-backed headless CMS written in Gleam"
 # licences = ["Apache-2.0"]
-# repository = { type = "github", user = "", repo = "" }
-# links = [{ title = "Website", href = "" }]
+repository = { type = "github", user = "bmehder", repo = "cheekycms" }
+links = [{ title = "Live API", href = "https://cheekycms.fly.dev/api" }]
 #
 # For a full reference of all the available options, you can have a look at
 # https://gleam.run/writing-gleam/gleam-toml/.

@@ -5,6 +5,7 @@ primary_region = "lhr"
   dockerfile = "Dockerfile"
 
 [env]
+  CHEEKYCMS_ASSET_ROOT = "/app/assets"
   CHEEKYCMS_CONTENT_ROOT = "/app/content"
   CHEEKYCMS_HOST = "0.0.0.0"
   CHEEKYCMS_PORT = "4000"

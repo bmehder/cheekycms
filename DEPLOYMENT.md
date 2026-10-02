@@ -1,8 +1,10 @@
 # Deployment
 
 CheekyCMS is packaged as an Erlang shipment in a small OCI container. Content
-is copied into the image, so production content changes are made by committing
-Markdown and deploying a new image.
+and assets are copied into the image, so production changes are made by
+committing files and deploying a new image. During the container build,
+ImageMagick generates 480, 960, and 1600 pixel WebP variants for every supported
+`*-source` image.
 
 ## Build and verify locally
 
@@ -63,11 +65,34 @@ The image accepts the same environment variables as local development:
 | `CHEEKYCMS_PORT` | `4000` |
 | `CHEEKYCMS_HOST` | `0.0.0.0` |
 | `CHEEKYCMS_CONTENT_ROOT` | `/app/content` |
+| `CHEEKYCMS_ASSET_ROOT` | `/app/assets` |
 | `CHEEKYCMS_ALLOWED_ORIGINS` | `*` |
 
 Set `CHEEKYCMS_ALLOWED_ORIGINS` to a comma-separated list of browser origins
 to restrict cross-origin requests, for example
 `https://www.example.com,https://admin.example.com`.
 
-Do not mount a writable production content directory unless edits are backed
-up elsewhere. The in-container filesystem is ephemeral on most hosts.
+## Storage model
+
+The production service treats its content and assets as read-only. They persist
+because they are part of the deployed image, not because the Machine filesystem
+is durable. A new deployment replaces that image with the repository's current
+state.
+
+Do not use the Machine root filesystem for uploads or runtime edits. A future
+upload API would require authentication, size and type limits, backups, and
+durable storage such as an object store or mounted volume. Large media should
+already be placed in object storage rather than Git.
+
+## Release verification
+
+After deployment, verify the catalogue, assets, CORS, and range delivery:
+
+```sh
+curl --fail https://cheekycms.fly.dev/health
+curl --fail https://cheekycms.fly.dev/api
+curl --fail --output /dev/null \
+  https://cheekycms.fly.dev/assets/studio/images/orbit-960.webp
+curl --fail --header 'Range: bytes=0-99' --output /dev/null \
+  https://cheekycms.fly.dev/assets/studio/images/orbit-960.webp
+```
