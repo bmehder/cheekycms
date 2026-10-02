@@ -20,6 +20,9 @@ content/
   <project>/
     collections/<collection>/<slug>.md
     singletons/<name>.md
+assets/
+  <project>/images/<name>-source.png
+  <project>/documents/<file>
 ```
 
 Each project is independent inside the content directory. A single CheekyCMS
@@ -30,6 +33,34 @@ content or release cycles.
 Only Markdown files are used for content. YAML frontmatter holds arbitrary
 metadata—including nested objects and lists—and the Markdown body is rendered
 to HTML. Raw HTML may be included directly in Markdown.
+
+## Assets and images
+
+CheekyCMS serves repository-managed files from `/assets/...`. Images, PDFs,
+audio, video, text files, fonts, archives, and other downloads can live under
+`assets/` and be referenced from frontmatter:
+
+```yaml
+hero:
+  src: /assets/studio/images/orbit-1600.webp
+  alt: A commuter using a journey planner
+document:
+  src: /assets/studio/documents/northstar-capabilities.pdf
+```
+
+Source images named `*-source.png`, `*-source.jpg`, or `*-source.jpeg` are
+automatically converted into 480, 960, and 1600 pixel WebP variants during the
+container build. To generate them locally, install ImageMagick and run:
+
+```sh
+gleam run -m cheekycms/assets_build
+```
+
+Try the live [responsive image](https://cheekycms.fly.dev/assets/studio/images/orbit-960.webp),
+[PDF](https://cheekycms.fly.dev/assets/studio/documents/northstar-capabilities.pdf),
+or [text download](https://cheekycms.fly.dev/assets/field-notes/downloads/coastal-walk-checklist.txt).
+Asset paths are traversal-safe, unknown types are served as binary data, and
+potentially active HTML, SVG, XML, and JavaScript files are forced to download.
 
 ## Live demo
 
@@ -61,6 +92,7 @@ settings can be changed with:
 CHEEKYCMS_PORT=8080 \
 CHEEKYCMS_HOST=127.0.0.1 \
 CHEEKYCMS_CONTENT_ROOT=path/to/content \
+CHEEKYCMS_ASSET_ROOT=path/to/assets \
 gleam run
 ```
 
@@ -84,6 +116,7 @@ GET /api/:project
 GET /api/:project/collections/:collection
 GET /api/:project/collections/:collection/:slug
 GET /api/:project/singletons/:name
+GET /assets/:path
 GET /health
 ```
 

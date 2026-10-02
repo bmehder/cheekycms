@@ -7,10 +7,12 @@
 # You should check this file into your source control repository.
 
 packages = [
+  { name = "alakazam", version = "1.1.1", build_tools = ["gleam"], requirements = ["gleam_community_colour", "gleam_stdlib", "shellout", "simplifile", "temporary"], otp_app = "alakazam", source = "hex", outer_checksum = "714E94A4A42429D8B194E7A88743038782EE4F31E06DBC93DD89CFD484A63ED7" },
   { name = "casefold", version = "2.2.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "casefold", source = "hex", outer_checksum = "6D097ACB08037DBA523199D9C8A3875D9F67FA35E06FC384BF3BE247A0658B6D" },
   { name = "envoy", version = "1.2.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "envoy", source = "hex", outer_checksum = "9C6FBB6BFA02A52798BEEC5977A738CAD6E4A057F4B67FD0C8061AD2502C191A" },
   { name = "exception", version = "2.1.1", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "exception", source = "hex", outer_checksum = "6BDEA95248093599391C3B5DF1835C5C6A86C353C2F99CE539B450E3432FE117" },
   { name = "filepath", version = "1.1.2", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "filepath", source = "hex", outer_checksum = "B06A9AF0BF10E51401D64B98E4B627F1D2E48C154967DA7AF4D0914780A6D40A" },
+  { name = "gleam_community_colour", version = "2.0.4", build_tools = ["gleam"], requirements = ["gleam_json", "gleam_stdlib"], otp_app = "gleam_community_colour", source = "hex", outer_checksum = "6DB4665555D7D2B27F0EA32EF47E8BEBC4303821765F9C73D483F38EE24894F0" },
   { name = "gleam_crypto", version = "1.6.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_crypto", source = "hex", outer_checksum = "2DE9E4EF53CF6FEE049D4F765731F7178F7A11AEFAE00EEE63BF7536B354AD3F" },
   { name = "gleam_erlang", version = "1.3.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_erlang", source = "hex", outer_checksum = "1124AD3AA21143E5AF0FC5CF3D9529F6DB8CA03E43A55711B60B6B7B3874375C" },
   { name = "gleam_http", version = "4.4.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_http", source = "hex", outer_checksum = "F065CE9941A7756ABBAEAE7F9F32A96CAD29DA3311A381DB2D926EA8E8C156DC" },
@@ -27,12 +29,15 @@ packages = [
   { name = "mist", version = "6.0.3", build_tools = ["gleam"], requirements = ["exception", "gleam_erlang", "gleam_http", "gleam_otp", "gleam_stdlib", "glisten", "gramps", "hpack_erl", "logging"], otp_app = "mist", source = "hex", outer_checksum = "1B07F321D5FA0CB162D81496F2DE96AEB6EF8980F4F38230A4CC3F849497E020" },
   { name = "mork", version = "1.12.3", build_tools = ["gleam"], requirements = ["casefold", "gleam_regexp", "gleam_stdlib", "splitter"], otp_app = "mork", source = "hex", outer_checksum = "A82E60876CF037ECD8D21CDD226831C8F6E9D9D0F6F7F6B7A53BAD993A9188CE" },
   { name = "polly", version = "3.1.0", build_tools = ["gleam"], requirements = ["filepath", "gleam_erlang", "gleam_otp", "gleam_stdlib", "simplifile"], otp_app = "polly", source = "hex", outer_checksum = "51FB565D81FF6212FDF3306D44419601F2A7C4EDD1F00FC9DA5C376A00AED4FE" },
+  { name = "shellout", version = "1.8.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "shellout", source = "hex", outer_checksum = "C416356D45151F298108C9DB9CD1EDE0313F620B5EDBB5766CD7237659D87841" },
   { name = "simplifile", version = "2.7.0", build_tools = ["gleam"], requirements = ["filepath", "gleam_stdlib"], otp_app = "simplifile", source = "hex", outer_checksum = "A2727627B063E87351934C7F7F008F2D1FDB16F6DE0B8C79F9E46459CFC9C164" },
   { name = "splitter", version = "1.3.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "splitter", source = "hex", outer_checksum = "8F1485306E0D59168A39E12ED8844F9F616EC59C3C63AFCFDAE04DBD68690CBC" },
+  { name = "temporary", version = "1.0.0", build_tools = ["gleam"], requirements = ["envoy", "exception", "filepath", "gleam_crypto", "gleam_stdlib", "simplifile"], otp_app = "temporary", source = "hex", outer_checksum = "51C0FEF4D72CE7CA507BD188B21C1F00695B3D5B09D7DFE38240BFD3A8E1E9B3" },
   { name = "yamleam", version = "1.0.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "yamleam", source = "hex", outer_checksum = "16213706D44FF1A0010ECD9E86F95E7F50E5C4BE4D61219512CF6A118E8CEC83" },
 ]
 
 [requirements]
+alakazam = { version = ">= 1.1.1 and < 2.0.0" }
 envoy = { version = ">= 1.2.0 and < 2.0.0" }
 filepath = { version = ">= 1.1.2 and < 2.0.0" }
 gleam_erlang = { version = ">= 1.3.0 and < 2.0.0" }

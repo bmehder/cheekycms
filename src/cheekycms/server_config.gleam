@@ -8,6 +8,8 @@ const default_port = "4000"
 
 const default_content_root = "content"
 
+const default_asset_root = "assets"
+
 const default_host = "0.0.0.0"
 
 const default_allowed_origins = "*"
@@ -16,6 +18,7 @@ pub type Config {
   Config(
     port: Int,
     content_root: String,
+    asset_root: String,
     host: String,
     allowed_origins: List(String),
   )
@@ -24,14 +27,16 @@ pub type Config {
 pub type ConfigError {
   InvalidPort(String)
   EmptyContentRoot
+  EmptyAssetRoot
   EmptyHost
 }
 
 /// Load server configuration from the process environment.
 pub fn load() -> Result(Config, ConfigError) {
-  from_values_with_origins(
+  from_all_values(
     port: environment("CHEEKYCMS_PORT", default_port),
     content_root: environment("CHEEKYCMS_CONTENT_ROOT", default_content_root),
+    asset_root: environment("CHEEKYCMS_ASSET_ROOT", default_asset_root),
     host: environment("CHEEKYCMS_HOST", default_host),
     allowed_origins: environment(
       "CHEEKYCMS_ALLOWED_ORIGINS",
@@ -46,9 +51,10 @@ pub fn from_values(
   content_root content_root_value: String,
   host host_value: String,
 ) -> Result(Config, ConfigError) {
-  from_values_with_origins(
+  from_all_values(
     port: port_value,
     content_root: content_root_value,
+    asset_root: default_asset_root,
     host: host_value,
     allowed_origins: default_allowed_origins,
   )
@@ -60,17 +66,36 @@ pub fn from_values_with_origins(
   host host_value: String,
   allowed_origins allowed_origins_value: String,
 ) -> Result(Config, ConfigError) {
+  from_all_values(
+    port: port_value,
+    content_root: content_root_value,
+    asset_root: default_asset_root,
+    host: host_value,
+    allowed_origins: allowed_origins_value,
+  )
+}
+
+fn from_all_values(
+  port port_value: String,
+  content_root content_root_value: String,
+  asset_root asset_root_value: String,
+  host host_value: String,
+  allowed_origins allowed_origins_value: String,
+) -> Result(Config, ConfigError) {
   use port <- result.try(parse_port(port_value))
   let content_root = string.trim(content_root_value)
+  let asset_root = string.trim(asset_root_value)
   let host = string.trim(host_value)
 
-  case content_root, host {
-    "", _ -> Error(EmptyContentRoot)
-    _, "" -> Error(EmptyHost)
-    _, _ ->
+  case content_root, asset_root, host {
+    "", _, _ -> Error(EmptyContentRoot)
+    _, "", _ -> Error(EmptyAssetRoot)
+    _, _, "" -> Error(EmptyHost)
+    _, _, _ ->
       Ok(Config(
         port:,
         content_root:,
+        asset_root:,
         host:,
         allowed_origins: allowed_origins_value
           |> string.split(on: ",")

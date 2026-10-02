@@ -1,9 +1,12 @@
 FROM ghcr.io/gleam-lang/gleam:v1.18.1-erlang-alpine AS build
 
+RUN apk add --no-cache imagemagick libwebp-tools
 WORKDIR /app
 COPY gleam.toml manifest.toml ./
 RUN gleam deps download
 COPY src ./src
+COPY assets ./assets
+RUN gleam run -m cheekycms/assets_build
 RUN gleam export erlang-shipment
 
 FROM erlang:29-alpine AS runtime
@@ -12,10 +15,12 @@ RUN addgroup -S cheekycms && adduser -S cheekycms -G cheekycms
 WORKDIR /app
 COPY --from=build --chown=cheekycms:cheekycms /app/build/erlang-shipment ./
 COPY --chown=cheekycms:cheekycms content ./content
+COPY --from=build --chown=cheekycms:cheekycms /app/assets ./assets
 
 ENV CHEEKYCMS_HOST=0.0.0.0 \
     CHEEKYCMS_PORT=4000 \
     CHEEKYCMS_CONTENT_ROOT=/app/content \
+    CHEEKYCMS_ASSET_ROOT=/app/assets \
     CHEEKYCMS_ALLOWED_ORIGINS=*
 
 EXPOSE 4000

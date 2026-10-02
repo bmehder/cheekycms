@@ -7,6 +7,20 @@ services:
   - Product strategy
   - Interface design
   - Frontend development
+hero:
+  src: /assets/studio/images/orbit-1600.webp
+  alt: A commuter using a journey planner in a modern city station
+  width: 1600
+  variants:
+    - src: /assets/studio/images/orbit-480.webp
+      width: 480
+    - src: /assets/studio/images/orbit-960.webp
+      width: 960
+    - src: /assets/studio/images/orbit-1600.webp
+      width: 1600
+document:
+  src: /assets/studio/documents/northstar-capabilities.pdf
+  title: Northstar Studio capabilities
 metrics:
   conversion_lift: 24
   markets_launched: 3

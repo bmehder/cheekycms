@@ -10,6 +10,9 @@ tags:
 coordinates:
   lat: 57.254
   lng: -5.004
+download:
+  src: /assets/field-notes/downloads/coastal-walk-checklist.txt
+  title: Coastal walk checklist
 ---
 # After the Rain
 

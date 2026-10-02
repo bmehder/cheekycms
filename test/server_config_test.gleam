@@ -13,6 +13,7 @@ pub fn accepts_valid_server_configuration_test() {
       server_config.Config(
         port: 8080,
         content_root: "content",
+        asset_root: "assets",
         host: "127.0.0.1",
         allowed_origins: ["*"],
       ),
