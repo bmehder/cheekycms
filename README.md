@@ -88,7 +88,8 @@ Byte-range requests are supported, allowing browsers to seek through larger
 PDF, audio, and video files without downloading them completely first.
 
 Assets are currently read-only and repository-backed: add them to `assets/`,
-commit them, and deploy a new image. CheekyCMS does not currently provide an
+commit them, and push to `main`. GitHub Actions verifies the project and deploys
+a new image to Fly.io automatically. CheekyCMS does not currently provide an
 upload API, authentication, or persistent runtime storage. GitHub enforces a
 100 MB maximum for an individual Git object, so large or frequently changing
 media libraries should use object storage rather than this repository-backed

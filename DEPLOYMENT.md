@@ -28,13 +28,30 @@ fly launch --no-deploy
 ```
 
 Keep the existing `fly.toml` settings when prompted. Fly adds the globally
-unique app name. Deploy with:
+unique app name. For an initial or manual deployment, run:
 
 ```sh
 fly deploy
 fly status
 fly checks list
 ```
+
+After the initial setup, every push to `main` automatically deploys to Fly.io
+once formatting, tests, the Erlang shipment build, and the container build have
+all passed. Pull requests are verified but never deployed. The workflow uses an
+app-scoped `FLY_API_TOKEN` repository secret and serializes production deploys
+so two releases cannot modify the app concurrently.
+
+Normal content publishing is therefore:
+
+```sh
+git add content assets
+git commit -m "Update content"
+git push
+```
+
+GitHub Actions builds and deploys the new image; no separate local `fly deploy`
+is required. Check the repository's Actions and Deployments pages for progress.
 
 The configuration keeps one 256 MB machine running in London and disables
 automatic stopping, avoiding request-time cold starts. This is not a free
