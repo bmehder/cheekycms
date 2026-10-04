@@ -44,6 +44,19 @@ pub fn serves_the_public_landing_page_test() {
   |> should.be_true
 }
 
+pub fn serves_the_marketing_favicon_test() {
+  let request = request.new() |> request.set_path("/favicon.svg")
+  let result = server.response_for(request, fixture_catalogue())
+
+  result.status |> should.equal(200)
+  response.get_header(result, "content-type")
+  |> should.equal(Ok("image/svg+xml; charset=utf-8"))
+  response.get_header(result, "cache-control")
+  |> should.equal(Ok("public, max-age=86400"))
+  string.contains(result.body, "#ff6b4a")
+  |> should.be_true
+}
+
 pub fn adapts_get_requests_test() {
   let request =
     request.new()

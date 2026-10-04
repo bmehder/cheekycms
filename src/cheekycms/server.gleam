@@ -259,6 +259,7 @@ fn response_for_api(
 ) -> Response(String) {
   case request.method, request.path {
     http.Get, "/" -> homepage_response(content_catalogue)
+    http.Get, "/favicon.svg" -> favicon_response()
     http.Get, _ -> {
       let api_response = case request.get_query(request) {
         Ok(parameters) ->
@@ -283,6 +284,14 @@ fn response_for_api(
       )
       |> to_http_response
   }
+}
+
+fn favicon_response() -> Response(String) {
+  response.new(200)
+  |> response.set_header("content-type", "image/svg+xml; charset=utf-8")
+  |> response.set_header("cache-control", "public, max-age=86400")
+  |> response.set_header("x-content-type-options", "nosniff")
+  |> response.set_body(landing.favicon_svg())
 }
 
 fn homepage_response(

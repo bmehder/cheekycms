@@ -184,6 +184,7 @@ The complete route structure is:
 
 ```text
 GET /
+GET /favicon.svg
 GET /api
 GET /api/:project
 GET /api/:project/collections/:collection

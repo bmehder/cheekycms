@@ -19,6 +19,7 @@ pub fn html(title: String, description: String, body_html: String) -> String {
       <meta property='og:url' content='https://cheekycms.fly.dev/'>
       <meta name='twitter:card' content='summary'>
       <link rel='canonical' href='https://cheekycms.fly.dev/'>
+      <link rel='icon' href='/favicon.svg' type='image/svg+xml'>
       <title>" <> safe_title <> "</title>
       <style>
         :root { color-scheme: dark; --ink: #f6f0e5; --muted: #aaa398; --paper: #11100f; --panel: #1a1816; --line: #34302c; --hot: #ff6b4a; --lime: #c8f169; }
@@ -78,6 +79,17 @@ pub fn html(title: String, description: String, body_html: String) -> String {
     </body>
   </html>
   "
+}
+
+/// Return the standalone mark used by browsers for the site icon.
+pub fn favicon_svg() -> String {
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
+    <rect width='64' height='64' rx='14' fill='#11100f'/>
+    <g transform='rotate(-4 32 32)'>
+      <rect x='10' y='10' width='44' height='44' rx='12' fill='#ff6b4a'/>
+      <path d='M42 23.5c-2.5-2.5-5.6-3.8-9.2-3.8-7.3 0-12.8 5.2-12.8 12.4s5.5 12.4 12.8 12.4c3.8 0 7-1.3 9.5-4l-4.1-4.2c-1.4 1.4-3.1 2.1-5.1 2.1-3.7 0-6.3-2.6-6.3-6.3s2.6-6.3 6.3-6.3c1.9 0 3.6.7 5 2l3.9-4.3Z' fill='#11100f'/>
+    </g>
+  </svg>"
 }
 
 fn escape(value: String) -> String {
