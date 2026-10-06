@@ -1,5 +1,7 @@
 ---
 title: Roasted Tomato Orzo
+description: An easy baked orzo with roasted tomatoes for four.
+published: 2026-10-02
 minutes: 40
 difficulty: easy
 vegetarian: true

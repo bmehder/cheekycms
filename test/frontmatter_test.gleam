@@ -3,6 +3,7 @@ import cheekycms/frontmatter
 import cheekycms/identifier
 import cheekycms/metadata
 import gleam/dict
+import gleam/list
 import gleeunit/should
 
 const complete_document = "---
@@ -64,6 +65,24 @@ pub fn parses_frontmatter_and_preserves_markdown_body_test() {
   body
   |> content.markdown_to_string
   |> should.equal("# Hello World\n\nThis is the body.\n")
+}
+
+pub fn plain_and_quoted_core_strings_have_the_same_values_test() {
+  let plain =
+    "---\ntitle: A portable page\ndescription: A short summary.\npublished: 2026-10-06\n---\n"
+  let quoted =
+    "---\ntitle: \"A portable page\"\ndescription: \"A short summary.\"\npublished: \"2026-10-06\"\n---\n"
+  let assert Ok(content.SourceDocument(metadata: plain_values, ..)) =
+    frontmatter.parse(content_id(), plain)
+  let assert Ok(content.SourceDocument(metadata: quoted_values, ..)) =
+    frontmatter.parse(content_id(), quoted)
+
+  ["title", "description", "published"]
+  |> list.map(fn(key) { metadata.get(plain_values, key) })
+  |> should.equal(
+    ["title", "description", "published"]
+    |> list.map(fn(key) { metadata.get(quoted_values, key) }),
+  )
 }
 
 pub fn accepts_markdown_without_frontmatter_test() {

@@ -1,6 +1,7 @@
 ---
 title: CheekyCMS — Markdown in, JSON out
 description: A cheeky little Markdown content API, written in Gleam.
+published: 2026-10-02
 purpose: marketing-homepage
 ---
 
@@ -19,8 +20,8 @@ purpose: marketing-homepage
       <h2>Just files. Then an API.</h2>
       <p class='section-intro'>YAML frontmatter becomes metadata. Markdown becomes HTML. The response is ordinary JSON that any frontend can use.</p>
       <div class='demo'>
-        <div class='code'><span class='label'>content/studio/collections/projects/orbit.md</span><pre>---&#10;<span class='key'>title:</span> <span class='value'>Orbit</span>&#10;<span class='key'>featured:</span> true&#10;<span class='key'>tags:</span>&#10;  - transport&#10;  - research&#10;---&#10;&#10;&#35; A calmer way to travel&#10;&#10;Journey planning without the noise.</pre></div>
-        <div class='code'><span class='label'>GET /api/studio/collections/projects/orbit</span><pre>{&#10;  <span class='key'>&quot;metadata&quot;</span>: {&#10;    <span class='key'>&quot;title&quot;</span>: <span class='value'>&quot;Orbit&quot;</span>,&#10;    <span class='key'>&quot;featured&quot;</span>: true,&#10;    <span class='key'>&quot;tags&quot;</span>: [<span class='value'>&quot;transport&quot;</span>, <span class='value'>&quot;research&quot;</span>]&#10;  },&#10;  <span class='key'>&quot;html&quot;</span>: <span class='value'>&quot;&lt;h1&gt;A calmer way to travel&lt;/h1&gt;…&quot;</span>&#10;}</pre></div>
+        <div class='code'><span class='label'>content/studio/collections/projects/orbit.md</span><pre>---&#10;<span class='key'>title:</span> <span class='value'>Orbit</span>&#10;<span class='key'>description:</span> <span class='value'>Product strategy and interface work…</span>&#10;<span class='key'>published:</span> <span class='value'>2026-10-02</span>&#10;<span class='key'>featured:</span> true&#10;---&#10;&#10;&#35; A calmer way to travel&#10;&#10;Journey planning without the noise.</pre></div>
+        <div class='code'><span class='label'>GET /api/studio/collections/projects/orbit</span><pre>{&#10;  <span class='key'>&quot;metadata&quot;</span>: {&#10;    <span class='key'>&quot;title&quot;</span>: <span class='value'>&quot;Orbit&quot;</span>,&#10;    <span class='key'>&quot;description&quot;</span>: <span class='value'>&quot;Product strategy and interface work…&quot;</span>,&#10;    <span class='key'>&quot;published&quot;</span>: <span class='value'>&quot;2026-10-02&quot;</span>,&#10;    <span class='key'>&quot;featured&quot;</span>: true&#10;  },&#10;  <span class='key'>&quot;html&quot;</span>: <span class='value'>&quot;&lt;h1&gt;A calmer way to travel&lt;/h1&gt;…&quot;</span>&#10;}</pre></div>
       </div>
     </div>
   </section>

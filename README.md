@@ -45,14 +45,13 @@ For example:
 ```markdown
 ---
 title: Lemony Chickpeas with Greens
+description: A quick one-pan supper of chickpeas, lemon, and greens.
+published: 2026-10-02
 minutes: 25
 vegetarian: true
 tags:
   - one-pan
   - pantry
-hero:
-  src: /assets/recipe-book/images/chickpeas-960.webp
-  alt: Chickpeas and greens in a shallow bowl
 ---
 # Lemony Chickpeas with Greens
 
@@ -62,6 +61,25 @@ Warm the chickpeas in olive oil, then fold through the greens.
 The frontmatter becomes the response's `metadata` object and the body becomes
 its rendered `html` string. CheekyCMS does not impose a shared schema across
 projects or collections.
+
+## Portable Markdown contract
+
+CheekyCMS supports version 1.0.0 of The Markdown Works'
+[Markdown content contract](https://github.com/bmehder/themarkdownworks/blob/main/docs/markdown-contract.md).
+A portable document has non-empty `title`, `description`, and `published`
+fields, with `published` written as a `YYYY-MM-DD` calendar date. Plain and
+quoted YAML strings have the same text value, and additional scalar, list, and
+mapping metadata is preserved in the API.
+
+The contract describes a portable subset, not a global CheekyCMS schema.
+CheekyCMS continues to accept Markdown without those fields and to expose
+arbitrary YAML metadata. Destination-specific templates, styles, shortcodes,
+routes, and asset locations remain outside the portability promise.
+
+The repository includes the contract's shared example unchanged at
+[`/api/example/singletons/portable-page`](https://cheekycms.fly.dev/api/example/singletons/portable-page).
+The sample documents that previously had no publication date use `2026-10-02`,
+their first appearance in Git history; existing editorial dates are unchanged.
 
 ## Why CheekyCMS?
 

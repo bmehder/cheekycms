@@ -1,5 +1,7 @@
 ---
 title: About Northstar
+description: The background and working principles of an independent digital studio.
+published: 2026-10-02
 founded: 2021
 independent: true
 principles:

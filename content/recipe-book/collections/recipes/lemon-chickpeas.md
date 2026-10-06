@@ -1,5 +1,7 @@
 ---
 title: Lemony Chickpeas with Greens
+description: A quick one-pan supper of chickpeas, lemon, and greens.
+published: 2026-10-02
 minutes: 25
 difficulty: easy
 vegetarian: true

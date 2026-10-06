@@ -1,5 +1,7 @@
 ---
 title: Orbit
+description: Product strategy and interface work for a calmer transit journey planner.
+published: 2026-10-02
 client: Orbit Transit
 year: 2026
 featured: true

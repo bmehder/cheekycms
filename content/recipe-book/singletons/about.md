@@ -1,6 +1,7 @@
 ---
 title: The Weeknight Table
 description: Flexible recipes for ordinary evenings.
+published: 2026-10-02
 serves: 4
 metric: true
 ---

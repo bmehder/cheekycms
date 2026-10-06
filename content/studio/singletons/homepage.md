@@ -1,6 +1,7 @@
 ---
 title: Northstar Studio
 description: Independent design and engineering for useful digital products.
+published: 2026-10-02
 eyebrow: Small team, ambitious work
 featured_project: orbit
 hero:

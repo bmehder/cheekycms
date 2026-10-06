@@ -1,4 +1,7 @@
 ---
+title: Milo Chen
+description: Principal engineer working with Gleam, TypeScript, and distributed systems.
+published: 2026-10-02
 name: Milo Chen
 role: Principal engineer
 available: false

@@ -73,6 +73,42 @@ pub fn handles_a_single_content_request_test() {
   )
 }
 
+pub fn serves_the_shared_portable_document_unchanged_test() {
+  let api.Response(status:, body:, ..) =
+    api.handle(demo_catalogue(), "/api/example/singletons/portable-page")
+
+  status |> should.equal(200)
+  body
+  |> json.parse(using: {
+    use title <- decode.subfield(["metadata", "title"], decode.string)
+    use description <- decode.subfield(
+      ["metadata", "description"],
+      decode.string,
+    )
+    use published <- decode.subfield(["metadata", "published"], decode.string)
+    use nested_title <- decode.subfield(
+      ["metadata", "custom", "title"],
+      decode.string,
+    )
+    use links <- decode.subfield(
+      ["metadata", "custom", "links"],
+      decode.list(decode.string),
+    )
+    use html <- decode.field("html", decode.string)
+    decode.success(#(title, description, published, nested_title, links, html))
+  })
+  |> should.equal(
+    Ok(#(
+      "A portable page",
+      "The same document can supply content to three independent projects.",
+      "2026-10-06",
+      "This nested title is additional metadata.",
+      ["https://example.com"],
+      "<h1>A portable page</h1>\n<p>Markdown works. We build around that.</p>\n<p>The destination supplies the route and presentation. The title, description,\npublication date, and writing travel together in this file.</p>\n<ul>\n<li>Chippy renders a page when it is requested.</li>\n<li>Docklands generates a static page during its build.</li>\n<li>CheekyCMS delivers the content through its API.</li>\n</ul>\n",
+    )),
+  )
+}
+
 pub fn handles_a_collection_request_test() {
   let api.Response(status:, body:, ..) =
     api.handle(fixture_catalogue(), "/api/personal-site/collections/posts")

@@ -1,5 +1,6 @@
 ---
 title: Reading the Tide Table
+description: Practical notes on tides and coastal navigation from North Uist.
 published: "2026-08-29"
 location: North Uist
 draft: false

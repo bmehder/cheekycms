@@ -1,6 +1,7 @@
 ---
 title: CheekyCMS
 description: A tiny, fast, file-backed headless CMS running on the BEAM.
+published: 2026-10-02
 featured: true
 links:
   repository: https://github.com/bmehder/cheekycms

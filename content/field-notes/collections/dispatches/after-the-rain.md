@@ -1,5 +1,6 @@
 ---
 title: After the Rain
+description: A field dispatch from Glen Affric after wet weather.
 published: "2026-09-18"
 location: Glen Affric
 draft: false

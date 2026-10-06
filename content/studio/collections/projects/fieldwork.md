@@ -1,5 +1,7 @@
 ---
 title: Fieldwork
+description: Research, brand, and web work for the Fieldwork Cooperative.
+published: 2026-10-02
 client: Fieldwork Cooperative
 year: 2025
 featured: false

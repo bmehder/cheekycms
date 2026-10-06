@@ -1,4 +1,7 @@
 ---
+title: Ada Okafor
+description: Design director specialising in research, product design, and facilitation.
+published: 2026-10-02
 name: Ada Okafor
 role: Design director
 available: true
