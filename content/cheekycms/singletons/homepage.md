@@ -23,6 +23,7 @@ purpose: marketing-homepage
         <div class='code'><span class='label'>content/studio/collections/projects/orbit.md</span><pre>---&#10;<span class='key'>title:</span> <span class='value'>Orbit</span>&#10;<span class='key'>description:</span> <span class='value'>Product strategy and interface work…</span>&#10;<span class='key'>published:</span> <span class='value'>2026-10-02</span>&#10;<span class='key'>featured:</span> true&#10;---&#10;&#10;&#35; A calmer way to travel&#10;&#10;Journey planning without the noise.</pre></div>
         <div class='code'><span class='label'>GET /api/studio/collections/projects/orbit</span><pre>{&#10;  <span class='key'>&quot;metadata&quot;</span>: {&#10;    <span class='key'>&quot;title&quot;</span>: <span class='value'>&quot;Orbit&quot;</span>,&#10;    <span class='key'>&quot;description&quot;</span>: <span class='value'>&quot;Product strategy and interface work…&quot;</span>,&#10;    <span class='key'>&quot;published&quot;</span>: <span class='value'>&quot;2026-10-02&quot;</span>,&#10;    <span class='key'>&quot;featured&quot;</span>: true&#10;  },&#10;  <span class='key'>&quot;html&quot;</span>: <span class='value'>&quot;&lt;h1&gt;A calmer way to travel&lt;/h1&gt;…&quot;</span>&#10;}</pre></div>
       </div>
+      <div class='actions'><a class='button' href='https://svelte.dev/playground/c592c1110b2a469eb915157f31117019?version=5.57.2' target='_blank' rel='noreferrer'>Try the API response tester — JSON + timing →</a></div>
     </div>
   </section>
 
