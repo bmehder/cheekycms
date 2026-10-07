@@ -5,8 +5,11 @@ WORKDIR /app
 COPY gleam.toml manifest.toml ./
 RUN gleam deps download
 COPY src ./src
+COPY README.md LICENSE ./
+COPY docs ./docs
 COPY assets ./assets
 RUN gleam run -m cheekycms/assets_build
+RUN gleam docs build && cp docs/docs_config.js build/dev/docs/cheekycms/docs_config.js
 RUN gleam export erlang-shipment
 
 FROM erlang:29-alpine AS runtime
@@ -16,6 +19,7 @@ WORKDIR /app
 COPY --from=build --chown=cheekycms:cheekycms /app/build/erlang-shipment ./
 COPY --chown=cheekycms:cheekycms content ./content
 COPY --from=build --chown=cheekycms:cheekycms /app/assets ./assets
+COPY --from=build --chown=cheekycms:cheekycms /app/build/dev/docs/cheekycms ./reference
 
 ENV CHEEKYCMS_HOST=0.0.0.0 \
     CHEEKYCMS_PORT=4000 \

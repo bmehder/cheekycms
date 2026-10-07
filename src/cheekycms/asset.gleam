@@ -5,6 +5,7 @@ import gleam/result
 import gleam/string
 import gleam/uri
 
+/// A validated file path plus the headers needed to serve it safely.
 pub type Asset {
   Asset(path: String, content_type: String, download: Bool)
 }
@@ -64,6 +65,7 @@ fn valid_segments(segments: List(String)) -> Bool {
   })
 }
 
+/// Infer a conservative media type for a repository-backed asset.
 pub fn content_type(path: String) -> String {
   case extension(path) {
     "avif" -> "image/avif"
@@ -89,6 +91,7 @@ pub fn content_type(path: String) -> String {
   }
 }
 
+/// Identify active formats that must download instead of executing inline.
 pub fn must_download(path: String) -> Bool {
   case extension(path) {
     "html" | "htm" | "svg" | "xml" | "js" | "mjs" -> True

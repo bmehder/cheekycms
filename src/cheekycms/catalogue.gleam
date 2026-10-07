@@ -40,14 +40,17 @@ pub fn from_items(items: List(Item)) -> Result(Catalogue, List(Duplicate)) {
   }
 }
 
+/// Return every item in stable discovery order.
 pub fn all(catalogue: Catalogue) -> List(Item) {
   catalogue.items
 }
 
+/// Look up one item by its project, kind, and content identifier.
 pub fn get(catalogue: Catalogue, id: content.ContentId) -> Result(Item, Nil) {
   dict.get(catalogue.by_id, id)
 }
 
+/// Count all singleton and collection entries in the catalogue.
 pub fn size(catalogue: Catalogue) -> Int {
   list.length(catalogue.items)
 }

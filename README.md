@@ -2,7 +2,8 @@
 
 A cheeky little Markdown content API written in Gleam. Visit the
 [project site](https://cheekycms.fly.dev), explore the
-[live API](https://cheekycms.fly.dev/api), or check its
+[live API](https://cheekycms.fly.dev/api), browse the
+[generated Gleam code reference](https://cheekycms.fly.dev/reference/), or check its
 [health](https://cheekycms.fly.dev/health).
 
 CheekyCMS treats Markdown files with frontmatter as source documents. Its core

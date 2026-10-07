@@ -54,6 +54,8 @@ pub type ValueType {
   NullType
 }
 
+/// Describe the runtime content API from the currently loaded catalogue.
+/// This powers `/api`; it is distinct from the generated Gleam code reference.
 pub fn build(catalogue: catalogue.Catalogue) -> Index {
   let contents = rendered_contents(catalogue)
   let projects =

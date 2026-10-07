@@ -4,6 +4,7 @@ import gleam/result
 import gleam/string
 import gleam/uri
 
+/// Every HTTP endpoint understood by the content API router.
 pub type Route {
   Index
   Content(query.Query)

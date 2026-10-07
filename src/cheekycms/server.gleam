@@ -7,6 +7,7 @@ import cheekycms/discovery
 import cheekycms/identifier
 import cheekycms/landing
 import cheekycms/metadata as content_metadata
+import cheekycms/reference
 import cheekycms/server_config
 import gleam/bytes_tree
 import gleam/http
@@ -58,6 +59,27 @@ pub fn start(config: server_config.Config) -> Result(Nil, StartError) {
 }
 
 fn handle_live(
+  request: Request(mist.Connection),
+  store: catalogue_store.Store,
+  asset_root: String,
+  allowed_origins: List(String),
+) -> Response(mist.ResponseData) {
+  case reference.resolve(request.path, "reference") {
+    Ok(resolved) -> asset_response(request, resolved, allowed_origins)
+    Error(reference.InvalidPath) ->
+      api.error_response(
+        400,
+        "invalid_reference_path",
+        "The reference path is invalid.",
+      )
+      |> to_mist_response
+      |> add_cors(request, allowed_origins)
+    Error(reference.NotReferenceRoute) ->
+      handle_asset_live(request, store, asset_root, allowed_origins)
+  }
+}
+
+fn handle_asset_live(
   request: Request(mist.Connection),
   store: catalogue_store.Store,
   asset_root: String,

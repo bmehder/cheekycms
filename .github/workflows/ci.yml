@@ -21,6 +21,7 @@ jobs:
           rebar3-version: "3"
       - run: gleam format --check src test
       - run: gleam test
+      - run: gleam docs build
       - run: gleam export erlang-shipment
 
   container:

@@ -11,7 +11,7 @@ purpose: marketing-homepage
       <div class='eyebrow'>Markdown in · JSON out · Gleam throughout</div>
       <h1>A cheeky little <em>content API.</em></h1>
       <p class='lede'>Put Markdown and assets in a repository. CheekyCMS serves them as structured metadata and rendered HTML—with room for several projects if that’s how you like to organise things.</p>
-      <div class='actions'><a class='button primary' href='/api'>Explore the live API →</a><a class='button' href='https://github.com/bmehder/cheekycms'>Read the code</a></div>
+      <div class='actions'><a class='button primary' href='/api'>Explore the live API →</a><a class='button' href='/reference/'>Browse the Gleam reference</a><a class='button' href='https://github.com/bmehder/cheekycms'>Read the code</a></div>
     </div>
   </header>
 
