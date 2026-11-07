@@ -1,7 +1,7 @@
 import cheekycms/content
-import cheekycms/loader
-import cheekycms/metadata
-import cheekycms/source_path
+import cheekycms/content/load as loader
+import cheekycms/content/metadata
+import cheekycms/content/source_path
 import gleeunit/should
 import simplifile
 

@@ -1,4 +1,4 @@
-import cheekycms/asset
+import cheekycms/web/asset
 import gleam/list
 import gleeunit/should
 

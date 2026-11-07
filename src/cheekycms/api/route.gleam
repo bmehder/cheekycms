@@ -1,5 +1,11 @@
-import cheekycms/identifier
-import cheekycms/query
+//// Translate content API paths into typed queries.
+////
+//// Decodes URL path segments and validates their identifiers before selecting a
+//// route. This module does not read files or query the catalogue. Pass the request
+//// path only; query-string controls are handled by `cheekycms/api/filter`.
+
+import cheekycms/api/select as query
+import cheekycms/content/identifier
 import gleam/result
 import gleam/string
 import gleam/uri

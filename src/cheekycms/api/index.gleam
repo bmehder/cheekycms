@@ -1,9 +1,16 @@
-import cheekycms/catalogue
+//// Build the discovery information exposed by the content API.
+////
+//// Inspects the catalogue to describe projects, collections, singletons, and
+//// observed metadata fields. These descriptions reflect loaded content rather than
+//// a declared schema. This index powers `/api`; Gleam generates the implementation
+//// reference separately.
+
 import cheekycms/content
-import cheekycms/identifier.{
+import cheekycms/content/catalogue
+import cheekycms/content/identifier.{
   type CollectionName, type ContentName, type ProjectId, type Slug,
 }
-import cheekycms/metadata
+import cheekycms/content/metadata
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/uri
@@ -13,6 +20,7 @@ pub type Index {
   Index(projects: List(Project))
 }
 
+/// One project's content routes and observed metadata.
 pub type Project {
   Project(
     id: ProjectId,
@@ -22,6 +30,7 @@ pub type Project {
   )
 }
 
+/// A collection's entries, endpoint, and observed metadata fields.
 pub type Collection {
   Collection(
     name: CollectionName,
@@ -31,10 +40,12 @@ pub type Collection {
   )
 }
 
+/// A collection entry and the endpoint that retrieves it.
 pub type Entry {
   Entry(slug: Slug, endpoint: String)
 }
 
+/// A singleton's endpoint and observed metadata fields.
 pub type Singleton {
   Singleton(name: ContentName, endpoint: String, metadata: Dict(String, Field))
 }
@@ -44,6 +55,7 @@ pub type Field {
   Field(types: List(ValueType), present_in: Int)
 }
 
+/// A metadata value's observed type, including nested list and object types.
 pub type ValueType {
   StringType
   IntType

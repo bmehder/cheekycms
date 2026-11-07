@@ -1,4 +1,4 @@
-import cheekycms/server_config
+import cheekycms/web/config as server_config
 import gleam/list
 import gleeunit/should
 

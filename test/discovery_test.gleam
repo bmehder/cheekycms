@@ -1,15 +1,14 @@
-import cheekycms/catalogue
 import cheekycms/content
-import cheekycms/discovery
-import cheekycms/identifier
-import cheekycms/loader
-import cheekycms/metadata
+import cheekycms/content/catalogue
+import cheekycms/content/identifier
+import cheekycms/content/load as loader
+import cheekycms/content/metadata
 import gleam/list
 import gleeunit/should
 import simplifile
 
 pub fn discovers_multiple_projects_and_content_kinds_test() {
-  let assert Ok(value) = discovery.discover("test/fixtures/content")
+  let assert Ok(value) = loader.discover("test/fixtures/content")
 
   catalogue.size(value)
   |> should.equal(3)
@@ -28,7 +27,7 @@ pub fn discovers_multiple_projects_and_content_kinds_test() {
 }
 
 pub fn catalogue_content_is_rendered_and_queryable_test() {
-  let assert Ok(value) = discovery.discover("test/fixtures/content")
+  let assert Ok(value) = loader.discover("test/fixtures/content")
   let assert Ok(project) = identifier.project_id("personal-site")
   let assert Ok(name) = identifier.content_name("homepage")
   let id = content.Singleton(project, name)
@@ -44,14 +43,14 @@ pub fn catalogue_content_is_rendered_and_queryable_test() {
 }
 
 pub fn collects_all_file_failures_test() {
-  let assert Error(errors) = discovery.discover("test/fixtures/invalid-content")
+  let assert Error(errors) = loader.discover("test/fixtures/invalid-content")
 
   list.length(errors)
   |> should.equal(2)
   errors
   |> list.map(fn(error) {
     case error {
-      discovery.FileFailed(path:, error: loader.ContentParseFailed(_)) -> path
+      loader.FileFailed(path:, error: loader.ContentParseFailed(_)) -> path
       _ -> "unexpected"
     }
   })
@@ -62,10 +61,10 @@ pub fn collects_all_file_failures_test() {
 }
 
 pub fn reports_an_unreadable_content_root_test() {
-  discovery.discover("test/fixtures/does-not-exist")
+  loader.discover("test/fixtures/does-not-exist")
   |> should.equal(
     Error([
-      discovery.ContentRootReadFailed(simplifile.Enoent),
+      loader.ContentRootReadFailed(simplifile.Enoent),
     ]),
   )
 }

@@ -1,3 +1,9 @@
+//// Read and validate HTTP server configuration.
+////
+//// Loads environment variables for the listener, content and asset roots, and
+//// allowed browser origins. Value-based constructors let tests exercise validation
+//// without changing the process environment.
+
 import envoy
 import gleam/int
 import gleam/list
@@ -14,6 +20,7 @@ const default_host = "0.0.0.0"
 
 const default_allowed_origins = "*"
 
+/// Validated listener settings, filesystem roots, and allowed browser origins.
 pub type Config {
   Config(
     port: Int,
@@ -24,6 +31,7 @@ pub type Config {
   )
 }
 
+/// Configuration values that prevent the server from starting.
 pub type ConfigError {
   InvalidPort(String)
   EmptyContentRoot
@@ -60,6 +68,8 @@ pub fn from_values(
   )
 }
 
+/// Validate explicit settings and a comma-separated browser origin policy.
+/// Uses the default asset root, matching the simpler value-based constructor.
 pub fn from_values_with_origins(
   port port_value: String,
   content_root content_root_value: String,

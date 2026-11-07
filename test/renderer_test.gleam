@@ -1,7 +1,7 @@
 import cheekycms/content
-import cheekycms/identifier
-import cheekycms/metadata
-import cheekycms/renderer
+import cheekycms/content/identifier
+import cheekycms/content/load as renderer
+import cheekycms/content/metadata
 import gleeunit/should
 
 fn source_document(markdown: String) -> content.SourceDocument {

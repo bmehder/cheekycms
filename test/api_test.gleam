@@ -1,6 +1,6 @@
 import cheekycms/api
-import cheekycms/catalogue
-import cheekycms/discovery
+import cheekycms/content/catalogue
+import cheekycms/content/load as discovery
 import gleam/dynamic/decode
 import gleam/json
 import gleeunit/should

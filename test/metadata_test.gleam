@@ -1,4 +1,4 @@
-import cheekycms/metadata
+import cheekycms/content/metadata
 import gleam/dict
 import gleeunit/should
 

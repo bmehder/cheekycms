@@ -1,3 +1,9 @@
+//// Frontmatter values used throughout the application.
+////
+//// Represents YAML-compatible values, including nested lists and objects, inside
+//// an opaque metadata dictionary. Parsing creates these values; API encoding and
+//// collection filtering consume them without converting everything to strings.
+
 import gleam/dict.{type Dict}
 
 /// A metadata value supported by CheekyCMS frontmatter and its JSON API.

@@ -1,3 +1,9 @@
+//// Generate responsive image variants during the build.
+////
+//// Finds supported source images beneath assets and uses Alakazam and ImageMagick
+//// to create WebP variants. The container runs this entry point before packaging;
+//// HTTP requests serve the resulting files without performing image conversion.
+
 import alakazam/image
 import envoy
 import filepath

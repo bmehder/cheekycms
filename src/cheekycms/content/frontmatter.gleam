@@ -1,5 +1,11 @@
+//// Parse a document's optional YAML frontmatter and Markdown body.
+////
+//// Converts decoded YAML into the application's metadata values and preserves the
+//// body for rendering. The caller supplies the identity derived from the file
+//// path. Parse failures are returned as values for the loader to report.
+
 import cheekycms/content.{type ContentId, type SourceDocument}
-import cheekycms/metadata
+import cheekycms/content/metadata
 import gleam/dict
 import gleam/list
 import gleam/result

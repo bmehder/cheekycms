@@ -11,183 +11,119 @@ tags:
 
 # Inside CheekyCMS
 
-This tutorial follows one piece of content through the complete application: from a Markdown file, through parsing and an in-memory catalogue, to a JSON response served by Mist. Read the files in the order below and keep this guide beside the code.
-
-CheekyCMS is deliberately small. Most modules do one transformation, and the effects—filesystem access, processes, and HTTP—stay near the outside. You do not need to understand OTP before beginning.
-
-## 1. Start with the shape of the repository
-
-The important directories are:
+CheekyCMS has two main flows. First it loads Markdown into memory; then it answers requests from that in-memory catalogue.
 
 ```text
-content/                 Markdown and YAML frontmatter
-assets/                  Images, documents, and other public files
-src/cheekycms/           Application modules
-test/                    Unit and adapter tests
-.github/workflows/       Verification and automatic deployment
+Loading:  files → frontmatter → rendered HTML → catalogue
+Serving:  request → route → selection → JSON → response
 ```
 
-Content paths are meaningful. These two forms are the entire content model:
+Rendering happens when content loads, rather than on every request. The runtime store holds the last complete valid catalogue.
+
+## Find your way around
+
+```text
+src/cheekycms.gleam       Entry point: configuration and startup
+src/cheekycms/
+  content.gleam          Shared document types
+  content/               Loading, parsing, identity, metadata, catalogue
+  api.gleam              Coordinate content API responses
+  api/                   Routes, selection, filtering, JSON, API index
+  runtime/store.gleam    Actor holding the live catalogue
+  web/                   HTTP startup, files, CORS, configuration
+  assets_build.gleam     Build-time image optimization
+src/marketing.gleam      Demo website route handler
+src/marketing/           Website page responses, HTML shell, CSS, favicon
+```
+
+Start with the loading and serving sections below. The later sections explain supporting features when you need them.
+
+## Follow one Markdown file
+
+Content lives in two supported directory shapes:
 
 ```text
 content/<project>/singletons/<name>.md
 content/<project>/collections/<collection>/<slug>.md
 ```
 
-For example, this tutorial is a `guides` entry in the `cheekycms` project. Its identity becomes:
+For this guide, the project is `cheekycms`, the collection is `guides`, and the slug is `inside-cheekycms`. These come from its path, rather than its frontmatter.
+
+Open `src/cheekycms/content.gleam` to see the document types. A `SourceDocument` contains metadata and Markdown; a `RenderedContent` contains metadata and HTML. Opaque Markdown and HTML wrappers prevent accidentally passing unrendered text as rendered content.
+
+Now read `src/cheekycms/content/load.gleam`. Its three entry points describe the complete loading flow:
+
+1. `discover` finds and sorts Markdown paths, loads and renders each document, and constructs the catalogue.
+2. `load` derives a document identity, reads one file, and parses its frontmatter.
+3. `render` uses Mörk to convert the Markdown body to HTML while preserving identity and metadata.
+
+The single-document functions remain public so tests and other callers can exercise each stage directly.
+
+Only open the supporting modules when you want their details:
+
+- `content/source_path.gleam` interprets the two path shapes.
+- `content/identifier.gleam` validates project IDs, collection names, slugs, and singleton names.
+- `content/frontmatter.gleam` separates YAML from Markdown and converts YAML values.
+- `content/metadata.gleam` represents strings, numbers, booleans, lists, objects, and null.
+- `content/catalogue.gleam` stores ordered items and indexes them by identity, rejecting duplicates.
+
+Discovery collects errors and returns no partial catalogue. Raw HTML is trusted because repository authors control published content.
+
+## Follow one request
+
+For this guide, request:
 
 ```text
 GET /api/cheekycms/collections/guides/inside-cheekycms
 ```
 
-The project name is not a global configuration value. It comes directly from the directory containing the content.
+Read `src/cheekycms/api.gleam`. It coordinates the content API and returns plain response data: status, content type, and body.
 
-## 2. Meet the domain types
+Its supporting modules answer distinct questions:
 
-Open `src/cheekycms/content.gleam`. It defines the small vocabulary used throughout the application:
+| Module | Question |
+|---|---|
+| `api/route.gleam` | What does this URL request? |
+| `api/select.gleam` | Which content matches that typed request? |
+| `api/filter.gleam` | How should collection entries be filtered, sorted, and limited? |
+| `api/json.gleam` | How does the result become JSON? |
+| `api/index.gleam` | Which projects, routes, and metadata fields exist? |
 
-- `ContentId` distinguishes collection entries from singletons.
-- `Markdown` wraps source text that has not been rendered.
-- `Html` wraps trusted renderer output.
-- `SourceDocument` contains parsed frontmatter and Markdown.
-- `RenderedContent` contains metadata and final HTML.
+Selection does not need an HTTP server. Route parsing does not need to read files. You can test both using ordinary values.
 
-The `Markdown` and `Html` types are opaque. Both contain strings, but the compiler prevents accidentally treating unrendered Markdown as finished HTML.
+The API index at `/api` describes loaded content. The generated Gleam reference at `/reference/` describes the implementation's modules, types, and functions.
 
-Next, open `src/cheekycms/metadata.gleam`. YAML values become a recursive `Value` type supporting strings, integers, floats, booleans, lists, objects, and null. `Metadata` is an opaque dictionary, so callers use its public functions rather than depending on its representation.
+## Understand startup and the live catalogue
 
-Finally, look at `src/cheekycms/identifier.gleam`. Project IDs, collection names, slugs, and singleton names are separate opaque types. Their constructors reject empty values, path separators, and reserved path segments. This makes invalid identifiers difficult to pass deeper into the program.
+Read `src/cheekycms.gleam`, followed by `src/cheekycms/web/server.gleam`.
 
-## 3. Turn a path into an identity
+The entry point loads validated environment configuration from `web/config.gleam`. The server loads the initial catalogue, starts the store actor and filesystem watcher, then starts Mist.
 
-Open `src/cheekycms/source_path.gleam`. Its main job is translating repository structure into a typed `ContentId`.
+`runtime/store.gleam` owns the live catalogue. Snapshot requests and reload messages are handled serially by the actor. Polly requests a reload when files change. Successful discovery replaces the catalogue as a whole. A failed reload records the errors for `/health` and keeps the previous valid catalogue available.
 
-Conceptually:
+## Follow HTTP dispatch
 
-```text
-cheekycms/collections/guides/inside-cheekycms.md
-                         ↓
-Entry(ProjectId("cheekycms"), CollectionName("guides"), Slug("inside-cheekycms"))
-```
+The live handler checks reference files, then public assets, then delegates to `marketing.handle` before handling API requests. The supporting web modules contain the details:
 
-Only the two documented directory shapes are accepted. That constraint keeps route generation and lookup predictable without introducing collection configuration files.
+- `web/files.gleam` streams files and handles single byte ranges.
+- `web/asset.gleam` validates asset paths, assigns media types, and makes active formats download.
+- `web/reference.gleam` resolves generated documentation files.
+- `web/cors.gleam` applies the configured browser access policy.
 
-## 4. Load and parse a document
+The marketing website lives outside the CMS modules. `src/marketing.gleam` owns `/` and `/favicon.svg`; `src/marketing/pages.gleam` builds their responses; `src/marketing/layout.gleam` supplies the HTML shell, CSS, and favicon artwork. The server's connection is the call to `marketing.handle`.
 
-Follow the path into `src/cheekycms/loader.gleam`. The loader:
+The website runs in the same process and deployment as the CMS. It demonstrates consuming CMS content; page rendering and branding belong to the website. The homepage comes from `content/cheekycms/singletons/homepage.md` in the same catalogue used by the API. File delivery sits outside that catalogue because media should be streamed rather than encoded as content JSON.
 
-1. Derives the typed identity from the relative path.
-2. Reads the source file beneath the configured content root.
-3. Sends the source to `frontmatter.parse`.
+## Images and deployment
 
-Now open `src/cheekycms/frontmatter.gleam`. It separates the YAML block between the opening and closing `---` markers from the Markdown body. Yamleam decodes the YAML, and the module recursively converts each decoded value into CheekyCMS metadata.
+`src/cheekycms/assets_build.gleam` generates responsive WebP variants during the build using Alakazam and ImageMagick.
 
-Errors remain explicit values. A bad path, failed file read, malformed frontmatter, or unsupported YAML value is returned rather than silently ignored.
+The Dockerfile generates assets and the Gleam reference, exports an Erlang shipment, and copies the results and content into the runtime image. Fly.io keeps one machine warm. GitHub Actions verifies and deploys pushes to main.
 
-## 5. Render Markdown once
+## Read the tests beside the code
 
-Open `src/cheekycms/renderer.gleam`. This is one of the smallest modules in the project. Mörk converts the Markdown body to HTML while the identity and metadata pass through unchanged.
+Tests retain descriptive names such as `loader_test.gleam`, `discovery_test.gleam`, and `renderer_test.gleam`, even though those stages now live together in `content/load.gleam`. Their imports identify the module under test.
 
-Rendering happens during discovery, not on every HTTP request. Raw HTML is allowed because repository content is considered trusted author input. That is convenient for the marketing homepage, but it also means write access to the content repository is equivalent to permission to publish HTML.
+Read a test, predict its result, and then follow the function it calls. Adapter tests construct HTTP requests without binding a socket. Run `gleam test` after a change.
 
-## 6. Discover the whole content tree
-
-Open `src/cheekycms/discovery.gleam`. Discovery finds files beneath `content/`, keeps the Markdown files, sorts their paths for deterministic behavior, and runs the loader and renderer for each one.
-
-The results go into `src/cheekycms/catalogue.gleam`. A catalogue stores both an ordered list and a dictionary indexed by `ContentId`. Construction rejects duplicate identities rather than choosing one file unpredictably.
-
-This is the first important performance decision: requests read already-parsed metadata and already-rendered HTML from memory.
-
-## 7. Keep the last good catalogue alive
-
-Open `src/cheekycms/catalogue_store.gleam`. The catalogue lives inside a lightweight BEAM actor. The store answers snapshot requests and handles reload messages serially.
-
-When files change, Polly asks the store to reload the entire content tree. A valid replacement becomes the new snapshot atomically. If any content is invalid, the error is recorded for `/health`, but the last valid snapshot continues serving requests.
-
-This gives CheekyCMS a useful property without locks or partial updates: every request sees either the complete old catalogue or the complete new one.
-
-## 8. Parse URLs and run queries
-
-Open these modules together:
-
-- `src/cheekycms/route.gleam` turns an encoded URL path into a typed query.
-- `src/cheekycms/query.gleam` selects projects, collections, entries, or singletons from the catalogue.
-- `src/cheekycms/collection_query.gleam` applies metadata filters, sorting, and limits to collection results.
-
-Routing and querying are separate deliberately. The query layer knows nothing about HTTP, and the route layer knows nothing about storage. Tests can exercise both without starting a server.
-
-Try these against the live installation:
-
-```text
-/api/cheekycms
-/api/cheekycms/collections/guides
-/api/cheekycms/collections/guides/inside-cheekycms
-/api/studio/collections/projects?featured=true
-```
-
-## 9. Encode the public API
-
-Open `src/cheekycms/api_json.gleam`. It converts typed content and metadata values into `gleam_json` values. This is where `RenderedContent` becomes the familiar response containing `metadata` and `html`.
-
-Then open `src/cheekycms/api.gleam`. It coordinates route parsing, query execution, collection controls, API discovery, health information, and consistent JSON errors. Its custom `Response` type is transport-neutral: status, content type, and body are plain data.
-
-`src/cheekycms/documentation.gleam` builds the `/api` discovery document by inspecting the catalogue. That is why adding this project automatically adds its routes and observed metadata fields to the API index.
-
-## 10. Reach the network boundary
-
-Open `src/cheekycms/server.gleam`. This is the adapter between transport-neutral application logic and Mist.
-
-The server starts the initial catalogue, actor, filesystem watcher, and HTTP listener. For each request it:
-
-1. Checks whether the path is an asset request.
-2. Serves the CMS-authored homepage at `/` when requested.
-3. Handles `/health` from the current store status.
-4. Delegates API paths to the transport-neutral API module.
-5. Adds configured CORS headers.
-
-The homepage is a useful dogfooding example. `content/cheekycms/singletons/homepage.md` owns its words and markup. `src/cheekycms/landing.gleam` owns only the reusable HTML document shell and CSS. The root handler reads the rendered singleton from the same catalogue used by `/api`.
-
-## 11. Follow an asset
-
-Open `src/cheekycms/asset.gleam`. It resolves `/assets/...` paths beneath the configured asset root, blocks traversal, assigns content types, and forces potentially active formats to download rather than execute inline.
-
-`src/cheekycms/assets_build.gleam` uses Alakazam and ImageMagick during the container build to generate 480, 960, and 1600 pixel WebP variants from supported `*-source` images.
-
-The server streams asset files and understands single byte ranges, allowing browsers to seek through PDFs, audio, and video without loading an entire file first.
-
-## 12. Start at `main`
-
-Only now open `src/cheekycms.gleam`. Its `main` function loads environment configuration and starts the server. There is little code here because all interesting decisions live in testable modules.
-
-`src/cheekycms/server_config.gleam` turns environment variables into a validated configuration. The defaults use local `content/` and `assets/` directories; the container supplies their `/app` locations.
-
-## 13. Read the tests beside the code
-
-The tests mirror the modules. A productive loop is:
-
-1. Read one source module.
-2. Find the similarly named file under `test/`.
-3. Predict the edge cases before reading the assertions.
-4. Change or add a fixture under `test/fixtures/content/`.
-5. Run `gleam test`.
-
-The server adapter tests do not bind a network port. They construct Gleam HTTP requests and inspect returned responses directly. That keeps the suite quick while still covering routing, headers, CORS, and the homepage.
-
-## 14. Understand deployment last
-
-The `Dockerfile` exports an Erlang shipment, copies content and generated assets into a small runtime image, and runs as an unprivileged user. The `fly.toml` keeps one Fly Machine warm.
-
-`.github/workflows/ci.yml` is the publishing path. A push to `main` formats, tests, exports the shipment, builds the container, and deploys only after every preceding job passes. Content publishing and application deployment are intentionally the same Git workflow.
-
-## Exercises
-
-Once the tour makes sense, try these in order:
-
-1. Add a metadata field to this document and find it in the API response.
-2. Add a second guide and watch `/api` discover it automatically.
-3. Filter a collection by one of your new metadata fields.
-4. Introduce malformed YAML locally and inspect the discovery error.
-5. Add a new content route test before changing its implementation.
-6. Replace one section of the marketing homepage by editing only its Markdown singleton.
-
-If you can trace those changes from disk to JSON, you understand the core of CheekyCMS.
+A useful first exercise is to add a Markdown fixture, follow its identity through discovery, and then select it through the API.

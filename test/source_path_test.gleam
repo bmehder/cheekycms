@@ -1,6 +1,6 @@
 import cheekycms/content
-import cheekycms/identifier
-import cheekycms/source_path
+import cheekycms/content/identifier
+import cheekycms/content/source_path
 import gleeunit/should
 
 pub fn derives_a_collection_entry_id_test() {

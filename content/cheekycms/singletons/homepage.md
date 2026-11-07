@@ -18,6 +18,7 @@ purpose: marketing-homepage
   <section>
     <div class='wrap'>
       <h2>Just files. Then an API.</h2>
+      <p>This website is one example of using the content. Its homepage is a Markdown singleton; a small Gleam website supplies the layout and styles. CheekyCMS serves the same content as JSON for other frontends to use.</p>
       <p class='section-intro'>YAML frontmatter becomes metadata. Markdown becomes HTML. The response is ordinary JSON that any frontend can use.</p>
       <div class='demo'>
         <div class='code'><span class='label'>content/studio/collections/projects/orbit.md</span><pre>---&#10;<span class='key'>title:</span> <span class='value'>Orbit</span>&#10;<span class='key'>description:</span> <span class='value'>Product strategy and interface work…</span>&#10;<span class='key'>published:</span> <span class='value'>2026-10-02</span>&#10;<span class='key'>featured:</span> true&#10;---&#10;&#10;&#35; A calmer way to travel&#10;&#10;Journey planning without the noise.</pre></div>

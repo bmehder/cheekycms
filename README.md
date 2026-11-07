@@ -150,6 +150,42 @@ enforces a 100 MB maximum for an individual Git object, so large or frequently
 changing media libraries should use object storage rather than this
 repository-backed workflow.
 
+## Generate the Gleam code reference
+
+Public types and functions use `///` comments; module introductions use `////`.
+Generate the reference with Gleam and stage it for the local server:
+
+```sh
+sh docs/build-reference.sh
+gleam run
+```
+
+Open `http://localhost:4000/reference/`, or use the book icon in the demo site's
+main navigation. The script runs `gleam docs build`, copies its output to the
+ignored `reference/` directory, and adds the self-hosted `docs_config.js`.
+The container build uses the same script. Regenerate after changing source
+comments. `/api` describes content; `/reference/` documents the Gleam code.
+
+## Content service and marketing website
+
+CheekyCMS provides the content API, asset delivery, and health endpoint. This
+repository also includes the marketing website published at the root URL.
+The website consumes the loaded CMS catalogue and runs in the same process
+and deployment.
+
+- [src/cheekycms/](src/cheekycms/) contains the content service.
+- [src/marketing.gleam](src/marketing.gleam) owns the website routes.
+- [src/marketing/pages.gleam](src/marketing/pages.gleam) reads the homepage
+  singleton and builds page responses.
+- [src/marketing/layout.gleam](src/marketing/layout.gleam) owns the website's
+  HTML shell, CSS, and favicon artwork.
+- [content/cheekycms/](content/cheekycms/) holds the website's Markdown content,
+  which is also available through the API like any other project.
+
+The HTTP server connects to the website through `marketing.handle`. Website
+routes and branding belong to that module and its helpers. The generated
+`/reference/` pages are implementation documentation.
+
 ## Live demo
 
 This repository includes several sample projects to demonstrate a multi-project
@@ -199,11 +235,9 @@ For example, the included starter page is available at:
 GET /api/example/singletons/homepage
 ```
 
-The complete route structure is:
+The content service routes are:
 
 ```text
-GET /
-GET /favicon.svg
 GET /api
 GET /api/:project
 GET /api/:project/collections/:collection
@@ -212,6 +246,9 @@ GET /api/:project/singletons/:name
 GET /assets/:path
 GET /health
 ```
+
+The marketing website handles `GET /` and `GET /favicon.svg`. Generated code
+reference pages are available at `/reference/` and its nested file paths.
 
 `GET /` serves the project introduction. `GET /api` is a discovery document
 generated from the loaded content. It lists
@@ -264,30 +301,29 @@ tutorial follows one Markdown file all the way from disk to JSON over HTTP. Its
 live API response is available at
 [`/api/cheekycms/collections/guides/inside-cheekycms`](https://cheekycms.fly.dev/api/cheekycms/collections/guides/inside-cheekycms).
 
-For a shorter reference, a useful path through the implementation is:
+The source is grouped by responsibility:
 
-1. [`content.gleam`](src/cheekycms/content.gleam) and
-   [`metadata.gleam`](src/cheekycms/metadata.gleam) define the core domain.
-2. [`frontmatter.gleam`](src/cheekycms/frontmatter.gleam) and
-   [`renderer.gleam`](src/cheekycms/renderer.gleam) transform Markdown files.
-3. [`source_path.gleam`](src/cheekycms/source_path.gleam),
-   [`loader.gleam`](src/cheekycms/loader.gleam), and
-   [`discovery.gleam`](src/cheekycms/discovery.gleam) load the filesystem.
-4. [`catalogue.gleam`](src/cheekycms/catalogue.gleam) and
-   [`catalogue_store.gleam`](src/cheekycms/catalogue_store.gleam) hold content
-   in memory and safely reload it on the BEAM.
-5. [`route.gleam`](src/cheekycms/route.gleam),
-   [`query.gleam`](src/cheekycms/query.gleam), and
-   [`collection_query.gleam`](src/cheekycms/collection_query.gleam) select and
-   refine content.
-6. [`documentation.gleam`](src/cheekycms/documentation.gleam),
-   [`api_json.gleam`](src/cheekycms/api_json.gleam), and
-   [`api.gleam`](src/cheekycms/api.gleam) produce the self-documenting JSON API.
-7. [`asset.gleam`](src/cheekycms/asset.gleam) secures file delivery, while
-   [`assets_build.gleam`](src/cheekycms/assets_build.gleam) generates responsive
-   images using Alakazam and ImageMagick.
-8. [`server.gleam`](src/cheekycms/server.gleam) is the Mist HTTP adapter, and
-   [`cheekycms.gleam`](src/cheekycms.gleam) is the application entry point.
+| Location | Purpose |
+|---|---|
+| [content.gleam](src/cheekycms/content.gleam) and [content/](src/cheekycms/content/) | Document types, loading, frontmatter, metadata, identity, and catalogue |
+| [api.gleam](src/cheekycms/api.gleam) and [api/](src/cheekycms/api/) | Routes, content selection, filtering, JSON, and the API index |
+| [runtime/store.gleam](src/cheekycms/runtime/store.gleam) | Actor holding the live catalogue and reload status |
+| [web/](src/cheekycms/web/) | Server startup, HTTP dispatch, file delivery, CORS, and configuration |
+| [marketing.gleam](src/marketing.gleam) and [marketing/](src/marketing/) | Demo website routes, page responses, HTML shell, and CSS |
+| [assets_build.gleam](src/cheekycms/assets_build.gleam) | Build-time responsive images |
+| [cheekycms.gleam](src/cheekycms.gleam) | Application entry point |
+
+Follow these two flows first:
+
+```text
+Files → content/load → catalogue
+Request → api/route → api/select → api/json → response
+```
+
+Start with [content/load.gleam](src/cheekycms/content/load.gleam) for loading
+and rendering, then [api.gleam](src/cheekycms/api.gleam) for serving content.
+[web/server.gleam](src/cheekycms/web/server.gleam) connects them to the actor,
+filesystem watcher, and Mist.
 
 Most transformations are pure and have a corresponding focused test under
 [`test`](test). The filesystem, watcher, process, and network effects stay near

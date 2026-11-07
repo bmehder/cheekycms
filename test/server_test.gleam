@@ -1,7 +1,7 @@
-import cheekycms/catalogue
-import cheekycms/catalogue_store
-import cheekycms/discovery
-import cheekycms/server
+import cheekycms/content/catalogue
+import cheekycms/content/load as discovery
+import cheekycms/runtime/store as catalogue_store
+import cheekycms/web/server
 import gleam/dynamic/decode
 import gleam/http
 import gleam/http/request

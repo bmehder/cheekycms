@@ -1,6 +1,6 @@
 import cheekycms/content
-import cheekycms/identifier
-import cheekycms/metadata
+import cheekycms/content/identifier
+import cheekycms/content/metadata
 import gleeunit/should
 
 pub fn source_and_rendered_content_have_distinct_body_types_test() {

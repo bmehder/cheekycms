@@ -1,7 +1,7 @@
-import cheekycms/catalogue
 import cheekycms/content
-import cheekycms/identifier
-import cheekycms/metadata
+import cheekycms/content/catalogue
+import cheekycms/content/identifier
+import cheekycms/content/metadata
 import gleeunit/should
 
 fn rendered_content() -> content.RenderedContent {

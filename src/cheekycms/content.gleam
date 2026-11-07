@@ -1,7 +1,13 @@
-import cheekycms/identifier.{
+//// The document types shared by loading and the content API.
+////
+//// A source document contains metadata and Markdown; rendered content contains
+//// metadata and HTML. Opaque wrappers distinguish unrendered Markdown from
+//// trusted HTML, while content identities distinguish singletons from entries.
+
+import cheekycms/content/identifier.{
   type CollectionName, type ContentName, type ProjectId, type Slug,
 }
-import cheekycms/metadata.{type Metadata}
+import cheekycms/content/metadata.{type Metadata}
 
 /// The stable identity of a piece of content.
 pub type ContentId {
@@ -29,10 +35,12 @@ pub type RenderedContent {
   RenderedContent(id: ContentId, metadata: Metadata, body: Html)
 }
 
+/// Wrap source Markdown without rendering it.
 pub fn markdown(value: String) -> Markdown {
   Markdown(value)
 }
 
+/// Unwrap source Markdown for the renderer.
 pub fn markdown_to_string(markdown: Markdown) -> String {
   let Markdown(value) = markdown
   value
@@ -43,6 +51,7 @@ pub fn trusted_html(value: String) -> Html {
   Html(value)
 }
 
+/// Unwrap trusted rendered HTML for encoding or page output.
 pub fn html_to_string(html: Html) -> String {
   let Html(value) = html
   value

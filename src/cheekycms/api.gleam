@@ -1,13 +1,21 @@
-import cheekycms/api_json
-import cheekycms/catalogue
-import cheekycms/catalogue_store
-import cheekycms/collection_query
-import cheekycms/documentation
-import cheekycms/query
-import cheekycms/route
+//// Coordinate the read-only content API.
+////
+//// Parses routes, selects content, applies collection controls, and encodes results.
+//// Responses contain plain status, media type, and body values so callers can use
+//// the API without a live HTTP server. Also supplies discovery, health, and
+//// consistent error responses.
+
+import cheekycms/api/filter as collection_query
+import cheekycms/api/index as documentation
+import cheekycms/api/json as api_json
+import cheekycms/api/route
+import cheekycms/api/select as query
+import cheekycms/content/catalogue
+import cheekycms/runtime/store as catalogue_store
 import gleam/json
 import gleam/option
 
+/// Media type shared by JSON API responses.
 pub const json_content_type = "application/json; charset=utf-8"
 
 /// A transport-neutral response ready to adapt to an HTTP server.
@@ -20,6 +28,8 @@ pub fn handle(catalogue: catalogue.Catalogue, path: String) -> Response {
   handle_with_query(catalogue, path, [])
 }
 
+/// Handle a path and decoded query parameters against the loaded catalogue.
+/// Collection controls are accepted only on collection routes.
 pub fn handle_with_query(
   catalogue: catalogue.Catalogue,
   path: String,
@@ -145,6 +155,7 @@ fn unsupported_query() -> Response {
   )
 }
 
+/// Build the shared JSON error envelope with a status, stable code, and message.
 pub fn error_response(status: Int, code: String, message: String) -> Response {
   let body =
     json.object([

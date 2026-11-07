@@ -1,10 +1,17 @@
-import cheekycms/asset
+//// Resolve URLs for the generated Gleam implementation reference.
+////
+//// Maps the reference root to its index and preserves nested documentation paths,
+//// rejecting invalid path segments. These trusted build-generated files are served
+//// inline with their appropriate media types by `cheekycms/web/files`.
+
+import cheekycms/web/asset
 import filepath
 import gleam/list
 import gleam/result
 import gleam/string
 import gleam/uri
 
+/// Distinguish unrelated URLs from malformed reference paths.
 pub type ReferenceError {
   NotReferenceRoute
   InvalidPath

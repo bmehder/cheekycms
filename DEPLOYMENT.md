@@ -6,6 +6,12 @@ repository and automatically deploys a new image. During the container build,
 ImageMagick generates 480, 960, and 1600 pixel WebP variants for every supported
 `*-source` image.
 
+The image hosts both the content service (`src/cheekycms/`) and the marketing
+website (`src/marketing.gleam` and `src/marketing/`). They are separate source
+areas but share one server and deployment. Website content remains ordinary
+CMS content under `content/cheekycms/`; editing its Markdown or layout uses
+the same deployment workflow as other repository changes.
+
 ## Build and verify locally
 
 ```sh

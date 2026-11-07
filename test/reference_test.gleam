@@ -1,5 +1,5 @@
-import cheekycms/asset
-import cheekycms/reference
+import cheekycms/web/asset
+import cheekycms/web/reference
 import gleeunit/should
 
 pub fn index_route_test() {

@@ -1,9 +1,9 @@
-import cheekycms/api_json
-import cheekycms/catalogue
+import cheekycms/api/json as api_json
 import cheekycms/content
-import cheekycms/discovery
-import cheekycms/identifier
-import cheekycms/metadata
+import cheekycms/content/catalogue
+import cheekycms/content/identifier
+import cheekycms/content/load as discovery
+import cheekycms/content/metadata
 import gleam/dict
 import gleam/dynamic/decode
 import gleam/json

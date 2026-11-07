@@ -1,5 +1,11 @@
+//// Derive content identity from a Markdown file's relative path.
+////
+//// Recognizes project singletons and collection entries. The directory structure
+//// supplies identity rather than frontmatter, so loading and API lookup share a
+//// predictable content model.
+
 import cheekycms/content
-import cheekycms/identifier
+import cheekycms/content/identifier
 import filepath
 import gleam/list
 import gleam/result

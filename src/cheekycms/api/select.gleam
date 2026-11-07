@@ -1,6 +1,12 @@
-import cheekycms/catalogue
+//// Select content from an already loaded catalogue.
+////
+//// Typed queries describe projects, collections, entries, and singletons without
+//// depending on HTTP or filesystem paths. Results distinguish one document from
+//// multiple documents; missing content produces explicit query errors.
+
 import cheekycms/content
-import cheekycms/identifier.{
+import cheekycms/content/catalogue
+import cheekycms/content/identifier.{
   type CollectionName, type ContentName, type ProjectId, type Slug,
 }
 import gleam/list

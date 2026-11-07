@@ -1,3 +1,9 @@
+//// Interpret public asset paths and byte-range requests.
+////
+//// Resolves paths beneath the asset root, assigns conservative media types, and
+//// identifies active formats that should download. Also parses single HTTP byte
+//// ranges. File streaming itself lives in `cheekycms/web/files`.
+
 import filepath
 import gleam/int
 import gleam/list
@@ -10,15 +16,18 @@ pub type Asset {
   Asset(path: String, content_type: String, download: Bool)
 }
 
+/// Distinguish unrelated URLs from malformed asset paths.
 pub type AssetError {
   NotAssetRoute
   InvalidPath
 }
 
+/// A validated file offset and number of bytes to send.
 pub type ByteRange {
   ByteRange(offset: Int, length: Int)
 }
 
+/// A malformed range or one outside the available file bytes.
 pub type RangeError {
   InvalidRange
   UnsatisfiableRange

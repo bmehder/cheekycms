@@ -1,7 +1,7 @@
-import cheekycms/catalogue
-import cheekycms/discovery
-import cheekycms/documentation
-import cheekycms/identifier
+import cheekycms/api/index as documentation
+import cheekycms/content/catalogue
+import cheekycms/content/identifier
+import cheekycms/content/load as discovery
 import gleam/dict
 import gleeunit/should
 

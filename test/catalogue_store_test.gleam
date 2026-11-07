@@ -1,6 +1,6 @@
-import cheekycms/catalogue
-import cheekycms/catalogue_store
-import cheekycms/discovery
+import cheekycms/content/catalogue
+import cheekycms/content/load as discovery
+import cheekycms/runtime/store as catalogue_store
 import gleam/erlang/process
 import gleam/option
 import gleeunit/should

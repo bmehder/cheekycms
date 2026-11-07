@@ -1,5 +1,12 @@
-import cheekycms/catalogue
-import cheekycms/discovery
+//// The actor that owns the live catalogue and reload status.
+////
+//// Answers snapshot requests and handles reload messages serially. A successful
+//// reload replaces the complete catalogue; a failed reload records errors while
+//// retaining the last valid catalogue. The filesystem watcher requests reloads,
+//// and the HTTP server reads snapshots.
+
+import cheekycms/content/catalogue
+import cheekycms/content/load as discovery
 import gleam/erlang/process.{type Subject}
 import gleam/option.{type Option, None, Some}
 import gleam/otp/actor
@@ -8,6 +15,7 @@ import gleam/string
 import gleam/time/calendar
 import gleam/time/timestamp
 
+/// Catalogue size and the outcome and timestamps of reload attempts.
 pub type Status {
   Status(
     catalogue_size: Int,
@@ -18,10 +26,12 @@ pub type Status {
   )
 }
 
+/// A catalogue and its matching status, read together from the actor.
 pub type Snapshot {
   Snapshot(catalogue: catalogue.Catalogue, status: Status)
 }
 
+/// An opaque handle to the actor that owns the live catalogue.
 pub opaque type Store {
   Store(subject: Subject(Message))
 }
@@ -35,6 +45,8 @@ type Message {
   Reload
 }
 
+/// Start the store with a complete initial catalogue and its content root.
+/// Subsequent reload messages discover replacement content from this root.
 pub fn start(
   initial: catalogue.Catalogue,
   content_root: String,
@@ -61,6 +73,8 @@ pub fn start(
   |> result.map(fn(started) { Store(started.data) })
 }
 
+/// Read the catalogue and reload status in one actor call.
+/// The call waits up to five seconds for the store to reply.
 pub fn snapshot(store: Store) -> Snapshot {
   let Store(subject:) = store
   actor.call(subject, waiting: 5000, sending: Get)
@@ -85,6 +99,7 @@ fn handle_message(
   }
 }
 
+// Discover a whole replacement; on failure retain the catalogue and update only status.
 fn reload_state(state: State) -> State {
   let Snapshot(catalogue: current, status:) = state.snapshot
   let Status(successful_reloads:, last_successful_reload:, ..) = status

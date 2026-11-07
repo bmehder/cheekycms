@@ -1,5 +1,11 @@
+//// Collection filtering, sorting, and limits.
+////
+//// Parses query parameters into options and applies them to selected content using
+//// its metadata. This is separate from selecting a project or document by identity.
+//// Invalid controls produce errors that the API can explain to callers.
+
 import cheekycms/content
-import cheekycms/metadata
+import cheekycms/content/metadata
 import gleam/float
 import gleam/int
 import gleam/list
@@ -8,15 +14,18 @@ import gleam/order.{type Order}
 import gleam/result
 import gleam/string
 
+/// Order in which comparable metadata values are sorted.
 pub type Direction {
   Ascending
   Descending
 }
 
+/// A metadata field and its requested ordering.
 pub type Sort {
   Sort(field: String, direction: Direction)
 }
 
+/// Validated collection controls; filters are combined with AND.
 pub type Options {
   Options(
     filters: List(#(String, String)),
@@ -25,6 +34,7 @@ pub type Options {
   )
 }
 
+/// Invalid controls or metadata that cannot satisfy the requested query.
 pub type QueryError {
   EmptyParameter(String)
   DuplicateParameter(String)
@@ -34,6 +44,7 @@ pub type QueryError {
   UnsortableField(String)
 }
 
+/// Return the stable API error code for a collection query failure.
 pub fn error_code(error: QueryError) -> String {
   case error {
     UnknownField(_) -> "unknown_query_field"
@@ -42,6 +53,7 @@ pub fn error_code(error: QueryError) -> String {
   }
 }
 
+/// Explain a collection query failure to an API caller.
 pub fn error_message(error: QueryError) -> String {
   case error {
     EmptyParameter(key) -> "Query parameter '" <> key <> "' cannot be empty."
@@ -56,6 +68,8 @@ pub fn error_message(error: QueryError) -> String {
   }
 }
 
+/// Parse controls, validate fields, then filter, sort, and limit entries.
+/// Missing or inconsistent sort fields return errors rather than guessing an order.
 pub fn apply(
   contents: List(content.RenderedContent),
   parameters: List(#(String, String)),
@@ -74,6 +88,8 @@ pub fn apply(
   })
 }
 
+/// Parse query parameters into collection controls without inspecting content.
+/// Field existence and sort compatibility are checked when applying the controls.
 pub fn parse(
   parameters: List(#(String, String)),
 ) -> Result(Options, QueryError) {
@@ -154,6 +170,7 @@ fn validate_field(
   }
 }
 
+// Compare only compatible scalar types; missing fields are handled by sorting.
 fn validate_sort_values(
   contents: List(content.RenderedContent),
   field: String,
@@ -189,6 +206,7 @@ fn metadata_value(
   metadata.get(values, field)
 }
 
+// Compare query text using the metadata value's type; list matching checks members.
 fn value_matches(value: metadata.Value, expected: String) -> Bool {
   case value {
     metadata.StringValue(value) -> value == expected

@@ -1,12 +1,19 @@
-import cheekycms/catalogue
+//// Encode application values in the public JSON response format.
+////
+//// Converts rendered content, selections, metadata, and the API index into JSON.
+//// Keeping encoding here makes the response shape visible without mixing it with
+//// filesystem access, HTTP handling, or content selection.
+
+import cheekycms/api/index as documentation
+import cheekycms/api/select as query
 import cheekycms/content
-import cheekycms/documentation
-import cheekycms/identifier
-import cheekycms/metadata as content_metadata
-import cheekycms/query
+import cheekycms/content/catalogue
+import cheekycms/content/identifier
+import cheekycms/content/metadata as content_metadata
 import gleam/json.{type Json}
 import gleam/list
 
+/// Encode the catalogue-derived API index and supported collection controls.
 pub fn documentation(index: documentation.Index) -> Json {
   let documentation.Index(projects:) = index
   json.object([
@@ -169,6 +176,7 @@ pub fn metadata(value: content_metadata.Metadata) -> Json {
   |> json.dict(fn(key) { key }, metadata_value)
 }
 
+/// Encode one metadata value recursively, preserving lists and objects.
 pub fn metadata_value(value: content_metadata.Value) -> Json {
   case value {
     content_metadata.StringValue(value) -> json.string(value)
@@ -182,6 +190,7 @@ pub fn metadata_value(value: content_metadata.Value) -> Json {
   }
 }
 
+/// Serialize a JSON value for a response body.
 pub fn to_string(value: Json) -> String {
   json.to_string(value)
 }

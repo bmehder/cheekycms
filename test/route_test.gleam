@@ -1,6 +1,6 @@
-import cheekycms/identifier
-import cheekycms/query
-import cheekycms/route
+import cheekycms/api/route
+import cheekycms/api/select as query
+import cheekycms/content/identifier
 import gleam/list
 import gleeunit/should
 

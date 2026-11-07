@@ -1,3 +1,9 @@
+//// A complete, uniquely identified set of rendered content.
+////
+//// Keeps an ordered list for traversal and a dictionary for identity lookup.
+//// Construction rejects duplicate identities. Loading builds the catalogue, the
+//// runtime store holds it, and API selection reads it.
+
 import cheekycms/content
 import gleam/dict.{type Dict}
 import gleam/list

@@ -1,4 +1,4 @@
-import cheekycms/identifier
+import cheekycms/content/identifier
 import gleeunit/should
 
 pub fn identifiers_are_trimmed_test() {

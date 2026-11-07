@@ -1,7 +1,7 @@
 import cheekycms/content
-import cheekycms/frontmatter
-import cheekycms/identifier
-import cheekycms/metadata
+import cheekycms/content/frontmatter
+import cheekycms/content/identifier
+import cheekycms/content/metadata
 import gleam/dict
 import gleam/list
 import gleeunit/should

@@ -1,8 +1,8 @@
-import cheekycms/catalogue
+import cheekycms/api/select as query
 import cheekycms/content
-import cheekycms/discovery
-import cheekycms/identifier
-import cheekycms/query
+import cheekycms/content/catalogue
+import cheekycms/content/identifier
+import cheekycms/content/load as discovery
 import gleam/list
 import gleeunit/should
 
